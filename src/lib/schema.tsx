@@ -20,24 +20,34 @@ export const signUpSchema = z
 		path: ['confirmPassword'],
 	});
 
+const variantSchema = z.object({
+	size: z.string().min(1, 'Size is required'),
+	color: z.string().min(1, 'Color is required'),
+	sku: z.string().min(1, 'SKU is required'),
+	priceModifier: z.number().min(0, 'Price modifier must be a positive number'),
+});
+
 export const addNewProductFormSchema = z.object({
-	name: z
-		.string()
-		.min(3, { message: 'Title must be at least 3 characters long' }),
+	name: z.string().min(2, {
+		message: 'Name must be at least 2 characters.',
+	}),
+	stockQuantity: z.number().int().positive({
+		message: 'Stock quantity must be a positive integer.',
+	}),
+	minimumStockLevel: z.number().int().nonnegative({
+		message: 'Minimum stock level must be a non-negative integer.',
+	}),
+	price: z.number().positive({
+		message: 'Price must be a positive number.',
+	}),
+	category: z.string().min(1, {
+		message: 'Category is required.',
+	}),
 	description: z.string().min(10, {
-		message: 'Description must be at least 10 characters long',
+		message: 'Description must be at least 10 characters.',
 	}),
-	quantity: z.string({
-		message: 'Please provide the quantity',
+	tags: z.array(z.string()).min(1, {
+		message: 'At least one tag is required.',
 	}),
-	price: z.string().regex(/^\d+(\.\d{1,2})?$/, {
-		message: 'Price must be a valid number with up to 2 decimal places',
-	}),
-	category: z.enum(['electronics', 'clothing', 'books', 'home', 'toys'], {
-		required_error: 'Please select a category',
-	}),
-	tag: z.string(),
-	// image: z
-	// 	.instanceof(FileList)
-	// 	.refine((files) => files.length > 0, 'Image is required'),
+	variants: z.array(variantSchema).optional(),
 });

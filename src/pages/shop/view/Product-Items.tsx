@@ -2,14 +2,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
-
-import {
 	ShoppingCart,
 	Heart,
 	Star,
@@ -19,31 +11,64 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import AdditionalProductDetails from '@/components/additional-product-details';
-import { ProductResponseType } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { ICart, IProductVariant, ProductResponseType } from '@/lib/types';
+import { cn, loadFromLocalStorage } from '@/lib/utils';
+import { useAppContext } from '@/lib/appContext';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function ProductDetails() {
+	const user = loadFromLocalStorage({ key: 'user' });
 	const [quantity, setQuantity] = useState(1);
 	const { productData, productImage, index } = useLocation().state as {
 		productData: ProductResponseType;
 		productImage: string[];
 		index: number;
 	};
+	const { setAddToCart, cart } = useAppContext();
+	const alreadyAdded = cart.some((item) => item.id == productData.id);
+
+	function addToCart() {
+		const data: ICart = {
+			category: productData.category,
+			description: productData.description,
+			id: productData.id,
+			name: productData.name,
+			price: productData.price,
+			tags: productData.tags,
+			quantity,
+			variant: selectedVariant,
+		};
+		setAddToCart((prev) => [...prev, data]);
+	}
+
 	const [isAddedToWishlist, addToWishlist] = useState(false);
 
 	const incrementQuantity = () => setQuantity((prev) => prev + 1);
 	const decrementQuantity = () =>
 		setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+	const [selectedVariant, setSelectedVariant] = useState<IProductVariant>(
+		productData.variants[0]
+	);
 
 	return (
 		<div className='container px-4 py-8 mx-auto'>
-			<Link
-				to='/shop/home'
-				className='inline-flex items-center mb-4 text-sm font-medium text-muted-foreground hover:text-primary'
-			>
-				<ChevronLeft className='w-4 h-4 mr-2' />
-				Back to Home
-			</Link>
+			<div className='w-full flex items-center justify-between'>
+				<Link
+					to='/shop/home'
+					className='inline-flex items-center mb-4 text-sm font-medium text-muted-foreground hover:text-primary'
+				>
+					<ChevronLeft className='w-4 h-4 mr-2' />
+					Back to Home
+				</Link>
+				{user.role === 'Admin' && (
+					<Link
+						to={`/shop/admin/home?editMode=true`}
+						state={{ productData }}
+					>
+						<Button>Edit Product</Button>
+					</Link>
+				)}
+			</div>
 			<div className='grid gap-8 md:grid-cols-2'>
 				<div className='space-y-4'>
 					<div className='overflow-hidden rounded-lg aspect-square'>
@@ -95,23 +120,46 @@ export default function ProductDetails() {
 							'Experience crystal-clear audio with our premium wireless headphones. Featuring advanced noise-cancellation technology and long-lasting battery life, these headphones are perfect for music lovers and professionals alike.'}
 					</p>
 					<div className='space-y-4'>
-						<div>
-							<label
-								htmlFor='color'
-								className='block mb-2 text-sm font-medium'
-							>
-								Color
-							</label>
-							<Select>
-								<SelectTrigger id='color'>
-									<SelectValue placeholder='Select color' />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value='black'>Black</SelectItem>
-									<SelectItem value='white'>White</SelectItem>
-									<SelectItem value='blue'>Blue</SelectItem>
-								</SelectContent>
-							</Select>
+						<div className='space-y-4'>
+							<div>
+								<h3 className='mb-2 text-lg font-semibold'>
+									Select Variant
+								</h3>
+								<div className='grid grid-cols-2 gap-4 sm:grid-cols-3'>
+									{productData.variants.map((variant) => (
+										<Card
+											key={variant.sku}
+											className={cn(
+												'cursor-pointer transition-all',
+												selectedVariant?.sku === variant.sku
+													? 'ring-2 ring-primary'
+													: ''
+											)}
+											onClick={() => setSelectedVariant(variant)}
+										>
+											<CardContent className='p-4'>
+												<div className='font-semibold'>
+													{variant.color}
+												</div>
+												<div className='text-sm text-muted-foreground'>
+													{variant.size}
+												</div>
+												<div className='mt-2 text-sm font-medium'>
+													{variant.priceModifier > 0
+														? `+$${variant.priceModifier.toFixed(
+																2
+														  )}`
+														: 'No extra cost'}
+												</div>
+											</CardContent>
+										</Card>
+									))}
+								</div>
+							</div>
+						</div>
+						<div className='flex items-center gap-x-2'>
+							<p className='block text-sm font-medium'>In Stock:</p>
+							<p>{productData.stockQuantity}</p>
 						</div>
 						<div>
 							<label
@@ -149,8 +197,13 @@ export default function ProductDetails() {
 						</div>
 					</div>
 					<div className='flex space-x-4'>
-						<Button className='flex-1'>
-							<ShoppingCart className='w-4 h-4 mr-2' /> Add to Cart
+						<Button
+							disabled={alreadyAdded || !selectedVariant}
+							onClick={addToCart}
+							className='flex-1'
+						>
+							<ShoppingCart className='w-4 h-4 mr-2' />{' '}
+							{alreadyAdded ? 'Added to cart' : 'Add to Cart'}
 						</Button>
 						<Button
 							variant='outline'

@@ -10,22 +10,43 @@ import {
 
 import { useQuery } from '@tanstack/react-query';
 import { axiosInstance } from '@/lib/api/axios';
-import { ProductResponseType } from '@/lib/types';
+import { ICart, ProductResponseType } from '@/lib/types';
 import { loadFromLocalStorage } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { getUnsplashImage } from '@/lib/api/product';
 import { Badge } from '@/components/ui/badge';
+import { useAppContext } from '@/lib/appContext';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import useProduct from '@/lib/hooks/useProduct';
+import { useState } from 'react';
 
 export default function Home() {
 	const user = loadFromLocalStorage({ key: 'user' });
+	const [categorySelected, setCategorySelected] = useState('All');
 	const navigate = useNavigate();
+	const { categories } = useProduct();
+	const { setAddToCart } = useAppContext();
 	const { data: products } = useQuery<ProductResponseType[]>({
-		queryKey: ['get-all-products'],
+		queryKey: ['get-all-products', categorySelected],
 		queryFn: async () => {
-			return (await axiosInstance.get('/products')).data;
+			return (
+				await axiosInstance.get(`/products?category=${categorySelected}`)
+			).data;
 		},
 	});
-	console.log('🚀 ~ Home ~ data:', products);
+	function addToCart(productData: ProductResponseType) {
+		const data: ICart = {
+			category: productData.category,
+			description: productData.description,
+			id: productData.id,
+			name: productData.name,
+			price: productData.price,
+			tags: productData.tags,
+			quantity: 1,
+			variant: productData.variants[0],
+		};
+		setAddToCart((prev) => [...prev, data]);
+	}
 
 	const productImageQueries = products?.map((product) => ({
 		queryKey: ['productImage', product.id],
@@ -33,7 +54,7 @@ export default function Home() {
 	}));
 
 	const { data: productImage = [] } = useQuery({
-		queryKey: ['productImages'],
+		queryKey: ['productImages', 'productImage'],
 		queryFn: async () => {
 			const imagePromises = productImageQueries?.map((query) =>
 				query.queryFn()
@@ -80,6 +101,27 @@ export default function Home() {
 					<h2 className='mb-8 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl'>
 						Featured Products
 					</h2>
+					<div>
+						<Tabs className='mb-3' defaultValue='all'>
+							<TabsList className='space-x-2'>
+								<TabsTrigger
+									onClick={() => setCategorySelected('All')}
+									value='all'
+								>
+									All
+								</TabsTrigger>
+								{categories?.map((category) => (
+									<TabsTrigger
+										key={category.id}
+										onClick={() => setCategorySelected(category.name)}
+										value={category.name.toLowerCase()}
+									>
+										{category.name}
+									</TabsTrigger>
+								))}
+							</TabsList>
+						</Tabs>
+					</div>
 					<div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
 						{products?.map((product, index) => (
 							<Card
@@ -87,8 +129,12 @@ export default function Home() {
 								className='cursor-pointer relative pt-1'
 								onClick={() => handleNavigation(product, index)}
 							>
-								<div className='absolute top-0.5 right-6'>
-									<Badge variant='default'>Badge</Badge>
+								<div className='absolute top-0.5 right-6 flex gap-x-1'>
+									{product.tags?.map((tag) => (
+										<Badge variant='default' className='capitalize'>
+											{tag}
+										</Badge>
+									))}
 								</div>
 								<CardHeader>
 									<img
@@ -112,7 +158,10 @@ export default function Home() {
 									<Button
 										variant='outline'
 										size='sm'
-										onClick={(e) => e.stopPropagation()}
+										onClick={(e) => {
+											e.stopPropagation();
+											addToCart(product);
+										}}
 									>
 										Add to Cart
 									</Button>

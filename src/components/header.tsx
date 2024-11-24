@@ -2,8 +2,10 @@ import { Heart, Menu, Package, Search, ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { AccountMenu } from './account-menu';
+import { useAppContext } from '@/lib/appContext';
 
 const Header = () => {
+	const { cart } = useAppContext();
 	return (
 		<header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
 			<div className='container flex items-center h-14'>
@@ -28,11 +30,16 @@ const Header = () => {
 						<span className='sr-only'>Wishlist</span>
 					</Link>
 					<Link
-						to='/cart'
+						to='/shop/cart'
 						className='text-sm font-medium transition-colors hover:text-primary'
 					>
-						<ShoppingCart className='w-5 h-5' />
+						<ShoppingCart className='w-5 h-5 relative' />
 						<span className='sr-only'>Cart</span>
+						{cart && (
+							<div className='absolute top-3 right-14 h-3 w-3 p-2 flex items-center justify-center bg-red-500 rounded-full text-xs'>
+								{cart.length}
+							</div>
+						)}
 					</Link>
 					<AccountMenu />
 					<Button variant='outline' size='icon' className='md:hidden'>

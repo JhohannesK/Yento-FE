@@ -1,6 +1,7 @@
 import {
 	Cloud,
 	CreditCard,
+	History,
 	LifeBuoy,
 	LogOut,
 	Settings,
@@ -19,9 +20,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from './ui/button';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export function AccountMenu() {
 	const { signOut } = useAuth();
+	const navigate = useNavigate();
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -48,6 +51,13 @@ export function AccountMenu() {
 						<Settings />
 						<span>Settings</span>
 						<DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
+					</DropdownMenuItem>
+					<DropdownMenuItem
+						onClick={() => navigate('/shop/order/history')}
+					>
+						<History />
+						<span>Order History</span>
+						<DropdownMenuShortcut>⌘H</DropdownMenuShortcut>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
