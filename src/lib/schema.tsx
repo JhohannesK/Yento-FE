@@ -21,10 +21,11 @@ export const signUpSchema = z
 	});
 
 const variantSchema = z.object({
-	size: z.string().min(1, 'Size is required'),
+	size: z.string(),
 	color: z.string().min(1, 'Color is required'),
 	sku: z.string().min(1, 'SKU is required'),
-	priceModifier: z.number().min(0, 'Price modifier must be a positive number'),
+	weight: z.string(),
+	priceModifier: z.number().min(1, 'Price modifier must be a positive number'),
 });
 
 export const addNewProductFormSchema = z.object({
@@ -46,8 +47,6 @@ export const addNewProductFormSchema = z.object({
 	description: z.string().min(10, {
 		message: 'Description must be at least 10 characters.',
 	}),
-	tags: z.array(z.string()).min(1, {
-		message: 'At least one tag is required.',
-	}),
+	tags: z.array(z.string()).optional(),
 	variants: z.array(variantSchema).optional(),
 });

@@ -44,11 +44,11 @@ export default function AdminNewItem() {
 	} = useProduct();
 	const [searchParams] = useSearchParams();
 	const editMode = searchParams.get('editMode');
-	console.log('🚀 ~ AdminNewItem ~ editMode:', editMode);
 	const locationData = useLocation()?.state as {
-		productData: ProductResponseType;
+		product: ProductResponseType;
 	};
-	const productData = locationData?.productData;
+	const productData = locationData?.product;
+	console.log('🚀 ~ AdminNewItem ~ productData:', productData);
 
 	const form = useForm<AddNewProduct>({
 		resolver: zodResolver(addNewProductFormSchema),
@@ -303,6 +303,19 @@ export default function AdminNewItem() {
 												/>
 												<FormField
 													control={form.control}
+													name={`variants.${index}.weight`}
+													render={({ field }) => (
+														<FormItem>
+															<FormLabel>Weight</FormLabel>
+															<FormControl>
+																<Input {...field} />
+															</FormControl>
+															<FormMessage />
+														</FormItem>
+													)}
+												/>
+												<FormField
+													control={form.control}
 													name={`variants.${index}.priceModifier`}
 													render={({ field }) => (
 														<FormItem>
@@ -352,6 +365,7 @@ export default function AdminNewItem() {
 											color: '',
 											sku: '',
 											priceModifier: 0,
+											weight: '',
 										})
 									}
 								>

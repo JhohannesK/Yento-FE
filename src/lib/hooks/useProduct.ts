@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { axiosInstance } from "../api/axios"
-import { AddNewProductType } from "../types"
+import { AddNewProductType, ProductResponseType } from "../types"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
 
@@ -48,8 +48,17 @@ const useProduct = () => {
          return res.data
       }
    })
+
+   const { data: productsByUser } = useQuery({
+      queryKey: ['get-all-products-user'],
+      queryFn: async () => {
+         const res = await axiosInstance.get<{ products: ProductResponseType[] }>('products/get-all-products-user')
+         return res.data.products
+      }
+   })
    return {
       addNewProduct,
+      productsByUser,
       isProductAdditionPending,
       isProductAdditionSuccess,
       categories,

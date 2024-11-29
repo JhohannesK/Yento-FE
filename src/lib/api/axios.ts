@@ -53,6 +53,9 @@ axiosInstance.interceptors.response.use(
             localStorage.setItem("token", token);
             return axiosInstance(originalRequest);
          } catch (error) {
+            if (axios.isAxiosError(error)) {
+               // do something
+            }
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
             window.location.href = "/auth?auth=signin";

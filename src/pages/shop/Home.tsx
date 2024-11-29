@@ -41,7 +41,7 @@ export default function Home() {
 			id: productData.id,
 			name: productData.name,
 			price: productData.price,
-			tags: productData.tags,
+			tags: productData?.tags ?? [],
 			quantity: 1,
 			variant: productData.variants[0],
 		};
@@ -96,7 +96,7 @@ export default function Home() {
 					</div>
 				</div>
 			</section>
-			<section className='w-full py-12 md:py-24 lg:py-32'>
+			<section className='w-[90rem] py-12 md:py-24 lg:py-32'>
 				<div className='container px-4 md:px-6'>
 					<h2 className='mb-8 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl'>
 						Featured Products
@@ -123,51 +123,69 @@ export default function Home() {
 						</Tabs>
 					</div>
 					<div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-						{products?.map((product, index) => (
-							<Card
-								key={product.id}
-								className='cursor-pointer relative pt-1'
-								onClick={() => handleNavigation(product, index)}
-							>
-								<div className='absolute top-0.5 right-6 flex gap-x-1'>
-									{product.tags?.map((tag) => (
-										<Badge variant='default' className='capitalize'>
-											{tag}
-										</Badge>
-									))}
-								</div>
-								<CardHeader>
-									<img
-										src={
-											(productImage[index] as string) ||
-											`/general-image.jpg`
-										}
-										alt={`Product ${product}`}
-										className='object-cover w-full h-48'
-									/>
-								</CardHeader>
-								<CardContent>
-									<CardTitle> {product.name.toUpperCase()}</CardTitle>
-									<p className='text-muted-foreground'>
-										Lorem ipsum dolor sit amet, consectetur adipiscing
-										elit.
+						{products?.length == 0 ? (
+							<div className=' flex items-center justify-center flex-col'>
+								<div className='flex w-full items-center justify-center'>
+									<p className='text-xl font-bold'>
+										No products available yet
 									</p>
-								</CardContent>
-								<CardFooter className='flex justify-between'>
-									<span className='font-bold'>${product.price}</span>
-									<Button
-										variant='outline'
-										size='sm'
-										onClick={(e) => {
-											e.stopPropagation();
-											addToCart(product);
-										}}
-									>
-										Add to Cart
-									</Button>
-								</CardFooter>
-							</Card>
-						))}
+								</div>
+							</div>
+						) : (
+							products?.map((product, index) => (
+								<Card
+									key={product.id}
+									className='cursor-pointer relative pt-1'
+									onClick={() => handleNavigation(product, index)}
+								>
+									<div className='absolute top-0.5 right-6 flex gap-x-1'>
+										{product.tags?.map((tag) => (
+											<Badge
+												variant='default'
+												className='capitalize'
+											>
+												{tag}
+											</Badge>
+										))}
+									</div>
+									<CardHeader>
+										<img
+											src={
+												(productImage[index] as string) ||
+												`/general-image.jpg`
+											}
+											alt={`Product ${product}`}
+											className='object-cover w-full h-48'
+										/>
+									</CardHeader>
+									<CardContent>
+										<CardTitle>
+											{' '}
+											{product.name.toUpperCase()}
+										</CardTitle>
+										<p className='text-muted-foreground'>
+											Lorem ipsum dolor sit amet, consectetur
+											adipiscing elit.
+										</p>
+									</CardContent>
+									<CardFooter className='flex justify-between'>
+										<span className='font-bold'>
+											${product.price}
+										</span>
+										<Button
+											variant='outline'
+											size='sm'
+											onClick={(e) => {
+												e.stopPropagation();
+												addToCart(product);
+											}}
+										>
+											Add to Cart
+										</Button>
+									</CardFooter>
+								</Card>
+							))
+						)}
 					</div>
 				</div>
 			</section>

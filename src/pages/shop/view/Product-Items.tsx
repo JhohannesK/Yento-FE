@@ -12,12 +12,11 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import AdditionalProductDetails from '@/components/additional-product-details';
 import { ICart, IProductVariant, ProductResponseType } from '@/lib/types';
-import { cn, loadFromLocalStorage } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { useAppContext } from '@/lib/appContext';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function ProductDetails() {
-	const user = loadFromLocalStorage({ key: 'user' });
 	const [quantity, setQuantity] = useState(1);
 	const { productData, productImage, index } = useLocation().state as {
 		productData: ProductResponseType;
@@ -34,7 +33,7 @@ export default function ProductDetails() {
 			id: productData.id,
 			name: productData.name,
 			price: productData.price,
-			tags: productData.tags,
+			tags: productData.tags ?? [],
 			quantity,
 			variant: selectedVariant,
 		};
@@ -60,14 +59,6 @@ export default function ProductDetails() {
 					<ChevronLeft className='w-4 h-4 mr-2' />
 					Back to Home
 				</Link>
-				{user.role === 'Admin' && (
-					<Link
-						to={`/shop/admin/home?editMode=true`}
-						state={{ productData }}
-					>
-						<Button>Edit Product</Button>
-					</Link>
-				)}
 			</div>
 			<div className='grid gap-8 md:grid-cols-2'>
 				<div className='space-y-4'>

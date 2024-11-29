@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { OrderHistoryTypes, OrderPayloadType } from "../types"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { OrderPayloadType } from "../types"
 import { axiosInstance } from "../api/axios"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
@@ -45,17 +45,9 @@ const useOrder = () => {
       }
    })
 
-   const getUserOrderHistory = useQuery({
-      queryKey: ['get-user-order-history'],
-      queryFn: async () => {
-         const response = await axiosInstance.get<{ status: number, message: string, data: OrderHistoryTypes[] }>('order/user-orders')
-         return response.data
-      }
-   })
-
 
    return {
-      makeOrderMutation, getUserOrderHistory,
+      makeOrderMutation,
       cancelOrderMutation
    }
 }

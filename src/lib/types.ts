@@ -15,7 +15,7 @@ export type ProductResponseType = {
    description: string,
    price: number,
    category: string,
-   tags: string[],
+   tags?: string[],
    variants: {
       id: number,
       size: string,
@@ -45,7 +45,7 @@ export interface ICart {
 }
 
 export interface IProductVariant {
-   id: number,
+   id?: number,
    size: string,
    color: string,
    sku: string,
@@ -59,7 +59,7 @@ export type AddNewProductType = {
    price: number,
    category: string,
    description: string,
-   tags: string[],
+   tags?: string[],
    variants?: IProductVariant[]
 }
 

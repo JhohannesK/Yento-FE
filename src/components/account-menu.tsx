@@ -1,4 +1,5 @@
 import {
+	Apple,
 	Cloud,
 	CreditCard,
 	History,
@@ -21,10 +22,12 @@ import {
 import { Button } from './ui/button';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { loadFromLocalStorage } from '@/lib/utils';
 
 export function AccountMenu() {
 	const { signOut } = useAuth();
 	const navigate = useNavigate();
+	const user = loadFromLocalStorage({ key: 'user' });
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -59,6 +62,14 @@ export function AccountMenu() {
 						<span>Order History</span>
 						<DropdownMenuShortcut>⌘H</DropdownMenuShortcut>
 					</DropdownMenuItem>
+					{user.role == 'Admin' && (
+						<DropdownMenuItem
+							onClick={() => navigate('/shop/admin/my-products')}
+						>
+							<Apple />
+							<span>My Products</span>
+						</DropdownMenuItem>
+					)}
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 

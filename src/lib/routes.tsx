@@ -1,6 +1,7 @@
 import ErrorPage from '@/components/error-page';
 import AuthenticationPage from '@/pages/auth/Authentication';
-import AdminNewItem from '@/pages/shop/AdminAddItemPage';
+import AdminProducts from '@/pages/shop/admin/admin-products';
+import AdminNewItem from '@/pages/shop/admin/AdminAddItemPage';
 import CheckoutPage from '@/pages/shop/CheckOut';
 import Home from '@/pages/shop/Home';
 import HomeLayout from '@/pages/shop/Layout';
@@ -42,9 +43,20 @@ export const router = createBrowserRouter([
 				// loader: teamLoader,
 			},
 			{
-				path: 'admin/home',
-				element: <AdminNewItem />,
-				// loader: teamLoader,
+				path: 'admin',
+				element: '',
+				children: [
+					{
+						path: 'home',
+						element: <AdminNewItem />,
+						// loader: teamLoader,
+					},
+					{
+						path: 'my-products',
+						element: <AdminProducts />,
+						// loader: teamLoader,
+					},
+				],
 			},
 			{
 				path: 'order',
