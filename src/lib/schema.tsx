@@ -25,7 +25,7 @@ const variantSchema = z.object({
 	color: z.string().min(1, 'Color is required'),
 	sku: z.string().min(1, 'SKU is required'),
 	weight: z.string(),
-	priceModifier: z.number().min(1, 'Price modifier must be a positive number'),
+	priceModifier: z.number().min(0, 'Price modifier must be a positive number'),
 });
 
 export const addNewProductFormSchema = z.object({

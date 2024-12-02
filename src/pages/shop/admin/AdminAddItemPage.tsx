@@ -48,7 +48,6 @@ export default function AdminNewItem() {
 		product: ProductResponseType;
 	};
 	const productData = locationData?.product;
-	console.log('🚀 ~ AdminNewItem ~ productData:', productData);
 
 	const form = useForm<AddNewProduct>({
 		resolver: zodResolver(addNewProductFormSchema),

@@ -19,7 +19,7 @@ const useOrder = () => {
          toast.success('Order was successful')
          setAddToCart([])
          queryClient.invalidateQueries({
-            queryKey: ['get-all-products', 'productImages']
+            queryKey: ['get-all-products', 'productImages', 'get-user-order-history']
          })
          navigate('/shop/home')
       },
