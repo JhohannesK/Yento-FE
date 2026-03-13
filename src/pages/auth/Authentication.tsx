@@ -1,7 +1,6 @@
 import { UserAuthSignInForm } from '@/components/auth/user-auth-signin-form';
 import { UserAuthSignUpForm } from '@/components/auth/user-auth-signup-form';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { Package } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -46,20 +45,16 @@ export default function AuthenticationPage() {
 				{params === 'signin' ? (
 					<Button
 						onClick={handleSignUpClick}
-						className={cn(
-							buttonVariants({ variant: 'ghost' }),
-							'absolute right-4 top-4 md:right-8 md:top-8'
-						)}
+						variant={'default'}
+						className={'absolute right-4 top-4 md:right-8 md:top-8'}
 					>
 						Sign Up
 					</Button>
 				) : (
 					<Button
 						onClick={handleSignInClick}
-						className={cn(
-							buttonVariants({ variant: 'ghost' }),
-							'absolute right-4 top-4 md:right-8 md:top-8'
-						)}
+						variant={'default'}
+						className={'absolute right-4 top-4 md:right-8 md:top-8'}
 					>
 						Login
 					</Button>

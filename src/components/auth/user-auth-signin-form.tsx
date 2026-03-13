@@ -52,6 +52,7 @@ export function UserAuthSignInForm({ className, ...props }: UserAuthFormProps) {
 										<FormLabel>Email</FormLabel>
 										<FormControl>
 											<Input
+												className='bg-white text-black'
 												{...field}
 												id='email'
 												placeholder='name@example.com'
@@ -109,11 +110,11 @@ export function UserAuthSignInForm({ className, ...props }: UserAuthFormProps) {
 					</span>
 				</div>
 			</div>
-			<Button variant='outline' type='button' disabled={signIn.isPending}>
+			<Button variant='default' type='button' disabled={signIn.isPending}>
 				{signIn.isPending ? (
-					<Icons.spinner className='w-4 h-4 mr-2 animate-spin' />
+					<Icons.spinner className='w-4 h-4 mr-2 animate-spin text-white' />
 				) : (
-					<Icons.google className='w-4 h-4 mr-2' />
+					<Icons.google className='w-4 h-4 mr-2 text-white' />
 				)}{' '}
 				Google
 			</Button>
