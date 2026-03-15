@@ -59,7 +59,8 @@ axiosInstance.interceptors.response.use(
             }
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
-            window.location.href = "/auth?auth=signin";
+            const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/auth?auth=signin&redirect=${redirect}`;
             return Promise.reject(error);
          }
       }

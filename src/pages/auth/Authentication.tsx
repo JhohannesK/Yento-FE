@@ -11,17 +11,29 @@ export default function AuthenticationPage() {
 	let value = params || 'signin';
 
 	useEffect(() => {
-		setSearchParams({ auth: value });
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set('auth', value);
+			return next;
+		});
 	}, [setSearchParams, value]);
 
 	const handleSignUpClick = () => {
 		value = 'signup';
-		setSearchParams({ auth: value });
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set('auth', value);
+			return next;
+		});
 	};
 
 	const handleSignInClick = () => {
 		value = 'signin';
-		setSearchParams({ auth: value });
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			next.set('auth', value);
+			return next;
+		});
 	};
 	return (
 		<div className='w-full'>

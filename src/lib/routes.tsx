@@ -1,20 +1,21 @@
 import ErrorPage from '@/components/error-page';
+import { ProtectedRoute } from '@/components/auth/protected-route';
 import AuthenticationPage from '@/pages/auth/Authentication';
 import AdminProducts from '@/pages/shop/admin/admin-products';
-import AdminNewItem from '@/pages/shop/admin/AdminAddItemPage';
-import CheckoutPage from '@/pages/shop/CheckOut';
-import Home from '@/pages/shop/Home';
-import HomeLayout from '@/pages/shop/Layout';
+import AdminNewItem from '@/pages/shop/admin/admin-add-item-page';
+import CheckoutPage from '@/pages/shop/check-out';
+import HomeLayout from '@/pages/shop/layout';
 import OrderDetails from '@/pages/shop/order/order-details';
 import OrderHistory from '@/pages/shop/order/order-history';
 import OrderLayout from '@/pages/shop/order/OrderLayout';
 import ProductDetails from '@/pages/shop/view/Product-Items';
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import Home from '@/pages/shop/Home';
 
 export const router = createBrowserRouter([
 	{
 		path: '/',
-		element: <AuthenticationPage />,
+		element: <Navigate to="/shop/home" replace />,
 		errorElement: <ErrorPage />,
 	},
 	{
@@ -30,46 +31,51 @@ export const router = createBrowserRouter([
 			{
 				path: 'home',
 				element: <Home />,
-				// loader: teamLoader,
 			},
 			{
 				path: 'item/:id',
 				element: <ProductDetails />,
-				// loader: teamLoader,
 			},
 			{
 				path: 'cart',
-				element: <CheckoutPage />,
-				// loader: teamLoader,
+				element: <ProtectedRoute />,
+				children: [
+					{
+						index: true,
+						element: <CheckoutPage />,
+					},
+				],
 			},
 			{
 				path: 'admin',
-				element: '',
+				element: <ProtectedRoute />,
 				children: [
 					{
 						path: 'home',
 						element: <AdminNewItem />,
-						// loader: teamLoader,
 					},
 					{
 						path: 'my-products',
 						element: <AdminProducts />,
-						// loader: teamLoader,
 					},
 				],
 			},
 			{
 				path: 'order',
-				element: <OrderLayout />,
-				// loader: teamLoader,
+				element: <ProtectedRoute />,
 				children: [
 					{
-						path: 'history',
-						element: <OrderHistory />,
-					},
-					{
-						path: ':id',
-						element: <OrderDetails />,
+						element: <OrderLayout />,
+						children: [
+							{
+								path: 'history',
+								element: <OrderHistory />,
+							},
+							{
+								path: ':id',
+								element: <OrderDetails />,
+							},
+						],
 					},
 				],
 			},

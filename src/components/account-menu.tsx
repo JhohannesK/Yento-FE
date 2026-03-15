@@ -28,6 +28,7 @@ export function AccountMenu() {
 	const { signOut } = useAuth();
 	const navigate = useNavigate();
 	const user = loadFromLocalStorage({ key: 'user' });
+	const userObj = user && user !== false && typeof user === 'object' ? user as { role?: string } : null;
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -62,7 +63,7 @@ export function AccountMenu() {
 						<span>Order History</span>
 						<DropdownMenuShortcut>⌘H</DropdownMenuShortcut>
 					</DropdownMenuItem>
-					{user.role == 'Admin' && (
+					{userObj?.role === 'Admin' && (
 						<DropdownMenuItem
 							onClick={() => navigate('/shop/admin/my-products')}
 						>

@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { axiosInstance } from '@/lib/api/axios';
 import { ICart, ProductResponseType } from '@/lib/types';
+import { isAuthenticated } from '@/lib/auth';
 import { loadFromLocalStorage } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { getUnsplashImage } from '@/lib/api/product';
@@ -22,6 +23,7 @@ import { useState } from 'react';
 
 export default function Home() {
 	const user = loadFromLocalStorage({ key: 'user' });
+	const authenticated = isAuthenticated();
 	const [categorySelected, setCategorySelected] = useState('All');
 	const navigate = useNavigate();
 	const { categories } = useProduct();
@@ -76,7 +78,7 @@ export default function Home() {
 					<div className='flex flex-col items-center space-y-4 text-center'>
 						<div className='space-y-2'>
 							<h1 className='text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none'>
-								Welcome to Yeton, {user.userName}
+								Welcome to Yeton{authenticated && user && user !== false && 'userName' in (user as object) ? `, ${(user as { userName: string }).userName}` : ''}
 							</h1>
 							<p className='mx-auto max-w-[700px] text-muted-foreground md:text-xl'>
 								Discover amazing products at unbeatable prices. Start
@@ -84,12 +86,12 @@ export default function Home() {
 							</p>
 						</div>
 						<div className='space-x-4'>
-							{user.role === 'User' ? (
-								<Button onClick={() => navigate('#')}>Shop Now</Button>
-							) : (
+							{authenticated && user && user !== false && (user as { role?: string }).role === 'Admin' ? (
 								<Button onClick={() => navigate('/shop/admin/home')}>
 									Add Item
 								</Button>
+							) : (
+								<Button onClick={() => navigate('#')}>Shop Now</Button>
 							)}
 							<Button variant='outline'>Learn More</Button>
 						</div>

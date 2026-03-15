@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { SignInInputs, SignUpInputs } from "../types";
 import { axiosInstance } from "../api/axios";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { saveToLocalStorage } from "../utils";
 export const useAuth = () => {
    const queryClient = useQueryClient();
    const navigate = useNavigate();
+   const [searchParams] = useSearchParams();
 
    const signIn = useMutation({
       mutationFn: async (data: SignInInputs) => {
@@ -25,7 +26,9 @@ export const useAuth = () => {
          saveToLocalStorage({ key: 'user', state: data.user })
          // localStorage.setItem("refreshToken", data.refreshToken);
          queryClient.setQueryData(["user"], data.user);
-         navigate("/shop/home");
+         const redirect = searchParams.get("redirect");
+         const target = redirect ? decodeURIComponent(redirect) : "/shop/home";
+         navigate(target.startsWith("/") ? target : `/${target}`, { replace: true });
       },
       onError: (error: Error & { response: { data: string } }) => {
          console.log("🚀 ~ useAuth ~ error:", error)

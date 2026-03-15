@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { AccountMenu } from './account-menu';
 import { useAppContext } from '@/lib/appContext';
+import { isAuthenticated } from '@/lib/auth';
 
 const Header = () => {
 	const { cart } = useAppContext();
+	const authenticated = isAuthenticated();
 	return (
 		<header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
 			<div className='container flex items-center h-14'>
@@ -41,7 +43,13 @@ const Header = () => {
 							</div>
 						)}
 					</Link>
-					<AccountMenu />
+					{authenticated ? (
+						<AccountMenu />
+					) : (
+						<Button variant="default" asChild>
+							<Link to="/auth?auth=signin">Sign In</Link>
+						</Button>
+					)}
 					<Button variant='outline' size='icon' className='md:hidden'>
 						<Menu className='w-5 h-5' />
 						<span className='sr-only'>Toggle menu</span>
