@@ -10,7 +10,7 @@ import OrderHistory from '@/pages/shop/order/order-history';
 import OrderLayout from '@/pages/shop/order/OrderLayout';
 import ProductDetails from '@/pages/shop/view/Product-Items';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import Home from '@/pages/shop/Home';
+import Home from '@/pages/shop/home';
 
 export const router = createBrowserRouter([
 	{

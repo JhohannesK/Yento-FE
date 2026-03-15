@@ -35,7 +35,7 @@ export default function ProductDetails() {
 			price: productData.price,
 			tags: productData.tags ?? [],
 			quantity,
-			variant: selectedVariant,
+			variant: selectedVariant as ICart['variant'],
 		};
 		setAddToCart((prev) => [...prev, data]);
 	}
