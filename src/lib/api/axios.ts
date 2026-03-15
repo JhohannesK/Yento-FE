@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const baseURL = import.meta.env.VITE_DEV_URL || "http://localhost:3000/api";
-const unsplashURL = import.meta.env.VITE_UNSPLASH_URL || 'http://localhost:300/api'
+const unsplashURL = import.meta.env.VITE_UNSPLASH_URL || 'http://localhost:3000/api'
 const accessKey = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
 
 export const axiosInstance = axios.create({
@@ -18,6 +18,7 @@ export const unsplashAxiosInstance = axios.create({
 });
 
 
+// SECURITY: Tokens in localStorage are readable by any script on the page (XSS). Prefer httpOnly cookies for production.
 axiosInstance.interceptors.request.use(
    (config) => {
       const token = localStorage.getItem("token");
