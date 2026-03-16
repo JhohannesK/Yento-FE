@@ -18,7 +18,12 @@ import Home from '@/pages/shop/home/home';
 export const router = createBrowserRouter([
 	{
 		path: '/',
-		element: <Navigate to="/shop/home" replace />,
+		element: (
+			<Navigate
+				to="/shop/home"
+				replace
+			/>
+		),
 		errorElement: <ErrorPage />,
 	},
 	{
@@ -66,7 +71,12 @@ export const router = createBrowserRouter([
 						children: [
 							{
 								index: true,
-								element: <Navigate to="/shop/admin/home" replace />,
+								element: (
+									<Navigate
+										to="/shop/admin/home"
+										replace
+									/>
+								),
 							},
 							{
 								path: 'home',
