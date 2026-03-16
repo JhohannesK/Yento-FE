@@ -1,16 +1,19 @@
 import ErrorPage from '@/components/error-page';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import AuthenticationPage from '@/pages/auth/Authentication';
+import AdminLayout from '@/pages/shop/admin/admin-layout';
 import AdminProducts from '@/pages/shop/admin/admin-products';
 import AdminNewItem from '@/pages/shop/admin/admin-add-item-page';
 import CheckoutPage from '@/pages/shop/check-out';
 import HomeLayout from '@/pages/shop/layout';
 import OrderDetails from '@/pages/shop/order/order-details';
 import OrderHistory from '@/pages/shop/order/order-history';
-import OrderLayout from '@/pages/shop/order/OrderLayout';
-import ProductDetails from '@/pages/shop/view/Product-Items';
+import OrderLayout from '@/pages/shop/order/_layout';
+import ProductDetails from '@/pages/shop/view/product-items';
+import SearchPage from '@/pages/shop/search/search-page';
+import WishlistPage from '@/pages/shop/wishlist/wishlist-page';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import Home from '@/pages/shop/home';
+import Home from '@/pages/shop/home/home';
 
 export const router = createBrowserRouter([
 	{
@@ -33,6 +36,14 @@ export const router = createBrowserRouter([
 				element: <Home />,
 			},
 			{
+				path: 'search',
+				element: <SearchPage />,
+			},
+			{
+				path: 'wishlist',
+				element: <WishlistPage />,
+			},
+			{
 				path: 'item/:id',
 				element: <ProductDetails />,
 			},
@@ -51,12 +62,21 @@ export const router = createBrowserRouter([
 				element: <ProtectedRoute />,
 				children: [
 					{
-						path: 'home',
-						element: <AdminNewItem />,
-					},
-					{
-						path: 'my-products',
-						element: <AdminProducts />,
+						element: <AdminLayout />,
+						children: [
+							{
+								index: true,
+								element: <Navigate to="/shop/admin/home" replace />,
+							},
+							{
+								path: 'home',
+								element: <AdminNewItem />,
+							},
+							{
+								path: 'my-products',
+								element: <AdminProducts />,
+							},
+						],
 					},
 				],
 			},

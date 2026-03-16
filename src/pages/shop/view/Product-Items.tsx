@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -9,22 +10,52 @@ import {
 	Plus,
 	Minus,
 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AdditionalProductDetails from '@/components/additional-product-details';
 import { ICart, IProductVariant, ProductResponseType } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useAppContext } from '@/lib/appContext';
 import { Card, CardContent } from '@/components/ui/card';
+import { getWishlistIds, addToWishlist, removeFromWishlist } from '@/lib/api/wishlist';
+import { isAuthenticated } from '@/lib/auth';
+import { toast } from 'sonner';
 
 export default function ProductDetails() {
 	const [quantity, setQuantity] = useState(1);
+	const navigate = useNavigate();
 	const { productData, productImage, index } = useLocation().state as {
 		productData: ProductResponseType;
-		productImage: string[];
+		productImage: ProductResponseType[] | string[];
 		index: number;
 	};
 	const { setAddToCart, cart } = useAppContext();
 	const alreadyAdded = cart.some((item) => item.id == productData.id);
+	const authenticated = isAuthenticated();
+	const queryClient = useQueryClient();
+
+	const { data: wishlistIds = [] } = useQuery({
+		queryKey: ['wishlist-ids'],
+		queryFn: getWishlistIds,
+		enabled: authenticated,
+	});
+	const isInWishlist = authenticated && wishlistIds.includes(productData.id);
+
+	const addWishlistMutation = useMutation({
+		mutationFn: addToWishlist,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['wishlist-ids'] });
+			queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+			toast.success('Added to wishlist');
+		},
+	});
+	const removeWishlistMutation = useMutation({
+		mutationFn: removeFromWishlist,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['wishlist-ids'] });
+			queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+			toast.success('Removed from wishlist');
+		},
+	});
 
 	function addToCart() {
 		const data: ICart = {
@@ -40,7 +71,14 @@ export default function ProductDetails() {
 		setAddToCart((prev) => [...prev, data]);
 	}
 
-	const [isAddedToWishlist, addToWishlist] = useState(false);
+	function toggleWishlist() {
+		if (!authenticated) {
+			navigate('/auth?auth=signin');
+			return;
+		}
+		if (isInWishlist) removeWishlistMutation.mutate(productData.id);
+		else addWishlistMutation.mutate(productData.id);
+	}
 
 	const incrementQuantity = () => setQuantity((prev) => prev + 1);
 	const decrementQuantity = () =>
@@ -48,9 +86,19 @@ export default function ProductDetails() {
 	const [selectedVariant, setSelectedVariant] = useState<IProductVariant>(
 		productData.variants[0]
 	);
+	const imageFallback =
+		Array.isArray(productImage) && typeof productImage[index] === 'object' && productImage[index] != null
+			? (productImage[index] as ProductResponseType).imageUrls?.[0]
+			: null;
+	const images = productData.imageUrls?.length
+		? productData.imageUrls
+		: imageFallback
+			? [imageFallback]
+			: ['/general-image.jpg'];
+	const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
 	return (
-		<div className='container px-4 py-8 mx-auto'>
+		<div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 			<div className='w-full flex items-center justify-between'>
 				<Link
 					to='/shop/home'
@@ -60,29 +108,38 @@ export default function ProductDetails() {
 					Back to Home
 				</Link>
 			</div>
-			<div className='grid gap-8 md:grid-cols-2'>
+			<div className="grid gap-6 sm:gap-8 md:grid-cols-2">
 				<div className='space-y-4'>
 					<div className='overflow-hidden rounded-lg aspect-square'>
 						<img
-							src={productImage[index] || '/general-image.jpg'}
+							src={images[selectedImageIndex]}
 							alt='Product Image'
 							className='object-cover w-full h-full'
 						/>
 					</div>
-					<div className='grid grid-cols-4 gap-4'>
-						{[1, 2, 3, 4].map((i) => (
-							<div
-								key={i}
-								className='overflow-hidden rounded-lg aspect-square'
-							>
-								<img
-									src='/general-image.jpg'
-									alt={`Product Image ${i}`}
-									className='object-cover w-full h-full'
-								/>
-							</div>
-						))}
-					</div>
+					{images.length > 1 && (
+						<div className='grid grid-cols-4 gap-4'>
+							{images.map((src, i) => (
+								<button
+									key={src}
+									type='button'
+									onClick={() => setSelectedImageIndex(i)}
+									className={cn(
+										'overflow-hidden rounded-lg aspect-square border-2',
+										selectedImageIndex === i
+											? 'border-primary'
+											: 'border-transparent'
+									)}
+								>
+									<img
+										src={src}
+										alt={`Product ${i + 1}`}
+										className='object-cover w-full h-full'
+									/>
+								</button>
+							))}
+						</div>
+					)}
 				</div>
 				<div className='space-y-6'>
 					<div>
@@ -198,15 +255,16 @@ export default function ProductDetails() {
 						</Button>
 						<Button
 							variant='outline'
-							onClick={() => addToWishlist(!isAddedToWishlist)}
+							onClick={toggleWishlist}
+							disabled={addWishlistMutation.isPending || removeWishlistMutation.isPending}
 						>
 							<Heart
 								className={cn(
-									isAddedToWishlist ? 'fill-red-500' : '',
+									isInWishlist ? 'fill-red-500 text-red-500' : '',
 									'w-4 h-4 mr-2'
 								)}
-							/>{' '}
-							Add to Wishlist
+							/>
+							{authenticated ? (isInWishlist ? 'In wishlist' : 'Add to Wishlist') : 'Sign in to wishlist'}
 						</Button>
 					</div>
 				</div>

@@ -47,6 +47,7 @@ export const addNewProductFormSchema = z.object({
 	description: z.string().min(10, {
 		message: 'Description must be at least 10 characters.',
 	}),
+	imageUrls: z.array(z.string().url()).optional().default([]),
 	tags: z.array(z.string()).optional(),
 	variants: z.array(variantSchema).optional(),
 });

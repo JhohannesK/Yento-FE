@@ -1,16 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { axiosInstance } from "../api/axios"
-import { AddNewProductType, ProductResponseType } from "../types"
+import type { AddNewProductType, ApiResponse, ProductResponseType } from "../types"
 import { toast } from "sonner"
 import { useNavigate } from "react-router-dom"
+import { createProduct, updateProduct } from "../api/product"
 
 const useProduct = () => {
    const navigate = useNavigate()
    const queryClient = useQueryClient()
    const { mutateAsync: addNewProduct, isPending: isProductAdditionPending, isSuccess: isProductAdditionSuccess } = useMutation({
       mutationFn: async (product: AddNewProductType) => {
-         const response = await axiosInstance.post('products/create', product)
-         return response.data
+         const response = await createProduct(product)
+         return response
       },
       onSuccess: () => {
          toast.success('Product was added successfully')
@@ -19,15 +20,15 @@ const useProduct = () => {
          })
          navigate('/shop/home')
       },
-      onError: () => {
-         toast.error("Error while adding product.")
+      onError: (err: { response?: { data?: { message?: string } } }) => {
+         toast.error(err.response?.data?.message ?? "Error while adding product.")
       }
    })
 
    const { mutateAsync: editProduct, isPending: isProductEditingPending, isSuccess: isProductEditingSuccess } = useMutation({
       mutationFn: async ({ product, productId }: { product: AddNewProductType, productId: number }) => {
-         const response = await axiosInstance.put(`products/update/${productId}`, product)
-         return response.data
+         const response = await updateProduct(productId.toString(), product)
+         return response
       },
       onSuccess: () => {
          toast.success('Product was updated successfully')
@@ -36,24 +37,28 @@ const useProduct = () => {
          })
          navigate('/shop/home')
       },
-      onError: () => {
-         toast.error("Error while updating product.")
+      onError: (err: { response?: { data?: { message?: string } } }) => {
+         toast.error(err.response?.data?.message ?? "Error while updating product.")
       }
    })
 
    const { data: categories } = useQuery({
       queryKey: ['get-all-categories'],
       queryFn: async () => {
-         const res = await axiosInstance.get<{ id: number, name: string }[]>('products/category/get-all-categories')
-         return res.data
+         const res = await axiosInstance.get<ApiResponse<{ id: number; name: string }[]>>(
+            'products/category/get-all-categories'
+         )
+         return res.data.data ?? []
       }
    })
 
    const { data: productsByUser } = useQuery({
       queryKey: ['get-all-products-user'],
       queryFn: async () => {
-         const res = await axiosInstance.get<{ products: ProductResponseType[] }>('products/get-all-products-user')
-         return res.data.products
+         const res = await axiosInstance.get<ApiResponse<ProductResponseType[]>>(
+            'products/get-all-products-by-user'
+         )
+         return res.data.data ?? []
       }
    })
    return {

@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { addNewProductFormSchema, signInSchema, signUpSchema } from './schema';
 
+/** Matches backend ApiResponse<T> - all API responses use this shape. */
+export type ApiResponse<T = unknown> = {
+	status: number;
+	message: string;
+	data: T | null;
+};
+
 export type SignInInputs = z.infer<typeof signInSchema>
 
 export type SignUpInputs = z.infer<typeof signUpSchema>
@@ -15,6 +22,7 @@ export type ProductResponseType = {
    description: string,
    price: number,
    category: string,
+   imageUrls?: string[],
    tags?: string[],
    variants: {
       id: number,
@@ -59,6 +67,7 @@ export type AddNewProductType = {
    price: number,
    category: string,
    description: string,
+   imageUrls?: string[],
    tags?: string[],
    variants?: IProductVariant[]
 }

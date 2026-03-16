@@ -1,60 +1,78 @@
-import { Heart, Menu, Package, Search, ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Heart, Package, Search, ShoppingCart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from './ui/button';
 import { AccountMenu } from './account-menu';
+import { SidebarTrigger } from './ui/sidebar';
 import { useAppContext } from '@/lib/appContext';
 import { isAuthenticated } from '@/lib/auth';
+
+const navLinks = [
+	{ to: '/shop/search', label: 'Search', icon: Search },
+	{ to: '/shop/wishlist', label: 'Wishlist', icon: Heart },
+	{ to: '/shop/cart', label: 'Cart', icon: ShoppingCart },
+] as const;
 
 const Header = () => {
 	const { cart } = useAppContext();
 	const authenticated = isAuthenticated();
-	return (
-		<header className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
-			<div className='container flex items-center h-14'>
-				<Link to='/shop/home' className='flex items-center space-x-2'>
-					<Package className='w-6 h-6' />
-					<span className='font-bold'>Yeton</span>
-				</Link>
-				<nav className='flex items-center ml-auto space-x-4'>
-					<Link
-						to='/search'
-						className='text-sm font-medium transition-colors hover:text-primary'
-					>
-						<Search className='w-5 h-5' />
-						<span className='sr-only'>Search</span>
-					</Link>
+	const navigate = useNavigate();
 
-					<Link
-						to='/wishlist'
-						className='text-sm font-medium transition-colors hover:text-primary'
-					>
-						<Heart className='w-5 h-5' />
-						<span className='sr-only'>Wishlist</span>
-					</Link>
-					<Link
-						to='/shop/cart'
-						className='text-sm font-medium transition-colors hover:text-primary'
-					>
-						<ShoppingCart className='w-5 h-5 relative' />
-						<span className='sr-only'>Cart</span>
-						{cart && (
-							<div className='absolute top-3 right-14 h-3 w-3 p-2 flex items-center justify-center bg-red-500 rounded-full text-xs'>
-								{cart.length}
-							</div>
-						)}
-					</Link>
+	return (
+		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+			<div className="flex items-center h-14 px-4 sm:px-6 gap-4">
+				<SidebarTrigger className="-ml-1 md:hidden" aria-label="Open menu" />
+				<Link
+					to="/shop/home"
+					className="flex items-center shrink-0 gap-2 min-w-0"
+				>
+					<Package className="h-6 w-6 shrink-0" />
+					<span className="font-bold truncate">Yeton</span>
+				</Link>
+
+				{/* Desktop nav */}
+				<nav className="hidden md:flex items-center ml-auto gap-2 sm:gap-4">
+					{navLinks.map(({ to, label, icon: Icon }) => (
+						<Link
+							key={to}
+							to={to}
+							className="relative p-2 text-sm font-medium transition-colors hover:text-primary rounded-md"
+							aria-label={label}
+						>
+							<Icon className="h-5 w-5" />
+							{to === '/shop/cart' && cart && cart.length > 0 && (
+								<span className="absolute -top-0.5 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+									{cart.length}
+								</span>
+							)}
+						</Link>
+					))}
 					{authenticated ? (
 						<AccountMenu />
 					) : (
-						<Button variant="default" asChild>
-							<Link to="/auth?auth=signin">Sign In</Link>
+						<Button
+							size="sm"
+							onClick={() => navigate('/auth?auth=signin')}
+						>
+							Sign In
 						</Button>
 					)}
-					<Button variant='outline' size='icon' className='md:hidden'>
-						<Menu className='w-5 h-5' />
-						<span className='sr-only'>Toggle menu</span>
-					</Button>
 				</nav>
+
+				{/* Mobile: cart + sidebar is opened via SidebarTrigger */}
+				<div className="flex items-center gap-2 ml-auto md:hidden">
+					<Link
+						to="/shop/cart"
+						className="relative p-2"
+						aria-label="Cart"
+					>
+						<ShoppingCart className="h-5 w-5" />
+						{cart && cart.length > 0 && (
+							<span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+								{cart.length}
+							</span>
+						)}
+					</Link>
+				</div>
 			</div>
 		</header>
 	);

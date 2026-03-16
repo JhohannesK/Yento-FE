@@ -1,75 +1,33 @@
 import axios from "axios";
 
 const baseURL = import.meta.env.VITE_DEV_URL || "http://localhost:3000/api";
-const unsplashURL = import.meta.env.VITE_UNSPLASH_URL || 'http://localhost:3000/api'
-const accessKey = import.meta.env.VITE_UNSPLASH_ACCESS_KEY
 
 export const axiosInstance = axios.create({
-   baseURL,
-   headers: {
-      "Content-Type": "application/json",
-   },
+	baseURL,
+	headers: {
+		"Content-Type": "application/json",
+	},
+	withCredentials: true,
 });
-export const unsplashAxiosInstance = axios.create({
-   baseURL: unsplashURL,
-   headers: {
-      "Content-Type": "application/json",
-   },
-});
-
-
-// SECURITY: Tokens in localStorage are readable by any script on the page (XSS). Prefer httpOnly cookies for production.
-axiosInstance.interceptors.request.use(
-   (config) => {
-      const token = localStorage.getItem("token");
-      if (token) {
-         config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-   },
-   (error) => Promise.reject(error)
-);
-
-unsplashAxiosInstance.interceptors.request.use(
-   (config) => {
-      if (accessKey) {
-         config.headers.Authorization = `Bearer Client-ID ${accessKey}`;
-      }
-      return config;
-   },
-   (error) => Promise.reject(error)
-);
-
 
 axiosInstance.interceptors.response.use(
-   (response) => response,
-   async (error) => {
-      const originalRequest = error.config;
-      if (error.response?.status === 401 && !originalRequest._retry) {
-         originalRequest._retry = true;
-         try {
-            const refreshToken = localStorage.getItem("refreshToken");
-            const response = await axiosInstance.post("/auth/refresh", { refreshToken });
-            const { token } = response.data;
-            localStorage.setItem("token", token);
-            return axiosInstance(originalRequest);
-         } catch (error) {
-            if (axios.isAxiosError(error)) {
-               // do something
-            }
-            localStorage.removeItem("token");
-            localStorage.removeItem("refreshToken");
-            const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = `/auth?auth=signin&redirect=${redirect}`;
-            return Promise.reject(error);
-         }
-      }
-      return Promise.reject(error);
-   }
+	(response) => response,
+	async (error) => {
+		const originalRequest = error.config;
+		if (error.response?.status === 401 && !originalRequest._retry) {
+			originalRequest._retry = true;
+			try {
+				await axiosInstance.post("/auth/refresh");
+				return axiosInstance(originalRequest);
+			} catch {
+				localStorage.removeItem("user");
+				const redirect = encodeURIComponent(
+					window.location.pathname + window.location.search
+				);
+				window.location.href = `/auth?auth=signin&redirect=${redirect}`;
+				return Promise.reject(error);
+			}
+		}
+		return Promise.reject(error);
+	}
 );
-
-unsplashAxiosInstance.interceptors.response.use((response) => response,
-   async (error) => {
-      return Promise.reject(error);
-   }
-)

@@ -7,6 +7,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { axiosInstance } from '@/lib/api/axios';
+import type { ApiResponse } from '@/lib/types';
 import { OrderHistoryTypes } from '@/lib/types';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, Filter } from 'lucide-react';
@@ -27,12 +28,10 @@ const OrderHistory = () => {
 	const { data } = useQuery({
 		queryKey: ['get-user-order-history', filter],
 		queryFn: async () => {
-			const response = await axiosInstance.get<{
-				status: number;
-				message: string;
-				data: OrderHistoryTypes[];
-			}>(`order/user-orders?status=${filter}`);
-			return response.data.data;
+			const response = await axiosInstance.get<ApiResponse<OrderHistoryTypes[]>>(
+				`order/user-orders?status=${filter}`
+			);
+			return response.data.data ?? [];
 		},
 	});
 	return (

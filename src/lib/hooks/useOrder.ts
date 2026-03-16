@@ -12,38 +12,38 @@ const useOrder = () => {
 
    const makeOrderMutation = useMutation({
       mutationFn: async (product: OrderPayloadType) => {
-         const response = await axiosInstance.post('order', product)
-         return response.data
+         const response = await axiosInstance.post("order", product);
+         return (response.data as { data: unknown }).data;
       },
       onSuccess: () => {
-         toast.success('Order was successful')
-         setAddToCart([])
+         toast.success("Order was successful");
+         setAddToCart([]);
          queryClient.invalidateQueries({
-            queryKey: ['get-all-products', 'productImages', 'get-user-order-history']
-         })
-         navigate('/shop/home')
+            queryKey: ["get-all-products", "productImages", "get-user-order-history"],
+         });
+         navigate("/shop/home");
       },
-      onError: () => {
-         toast.error("Error while making order.")
-      }
-   })
+      onError: (error: { response?: { data?: { message?: string } } }) => {
+         toast.error(error.response?.data?.message ?? "Error while making order.");
+      },
+   });
 
    const cancelOrderMutation = useMutation({
       mutationFn: async (orderId: number) => {
-         const response = await axiosInstance.post(`order/${orderId}/cancel-order`)
-         return response.data
+         const response = await axiosInstance.post(`order/${orderId}/cancel-order`);
+         return (response.data as { data: unknown }).data;
       },
       onSuccess: () => {
-         toast.success('Order was cancelled')
+         toast.success("Order was cancelled");
          queryClient.invalidateQueries({
-            queryKey: ['get-user-order-history']
-         })
-         navigate('/shop/order/history')
+            queryKey: ["get-user-order-history"],
+         });
+         navigate("/shop/order/history");
       },
-      onError: () => {
-         toast.error("Error while cancelling order.")
-      }
-   })
+      onError: (error: { response?: { data?: { message?: string } } }) => {
+         toast.error(error.response?.data?.message ?? "Error while cancelling order.");
+      },
+   });
 
 
    return {
