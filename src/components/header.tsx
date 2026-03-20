@@ -18,7 +18,7 @@ const Header = () => {
 	const navigate = useNavigate();
 
 	return (
-		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
 			<div className="flex items-center h-14 px-4 sm:px-6 gap-4">
 				<SidebarTrigger className="-ml-1 md:hidden" aria-label="Open menu" />
 				<Link
@@ -40,7 +40,10 @@ const Header = () => {
 						>
 							<Icon className="h-5 w-5" />
 							{to === '/shop/cart' && cart && cart.length > 0 && (
-								<span className="absolute -top-0.5 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+								<span
+									key={cart.length}
+									className="absolute -top-0.5 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white animate-[badgePop_300ms_var(--ease-spring)]"
+								>
 									{cart.length}
 								</span>
 							)}
@@ -67,7 +70,10 @@ const Header = () => {
 					>
 						<ShoppingCart className="h-5 w-5" />
 						{cart && cart.length > 0 && (
-							<span className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white">
+							<span
+								key={cart.length}
+								className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-medium text-white animate-[badgePop_300ms_var(--ease-spring)]"
+							>
 								{cart.length}
 							</span>
 						)}

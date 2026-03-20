@@ -112,9 +112,19 @@ export default function AuthenticationPage() {
 							)}
 						</div>
 						{params === 'signin' ? (
-							<UserAuthSignInForm />
+							<div
+								key={params}
+								className='animate-[fadeInUp_300ms_var(--ease-spring)_forwards]'
+							>
+								<UserAuthSignInForm />
+							</div>
 						) : (
-							<UserAuthSignUpForm />
+							<div
+								key={params}
+								className='animate-[fadeInUp_300ms_var(--ease-spring)_forwards]'
+							>
+								<UserAuthSignUpForm />
+							</div>
 						)}
 						<p className='px-8 text-sm text-center text-muted-foreground'>
 							By clicking continue, you agree to our{' '}

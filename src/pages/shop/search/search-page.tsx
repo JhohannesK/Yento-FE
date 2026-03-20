@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
 	Card,
 	CardContent,
@@ -11,6 +12,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Search as SearchIcon } from 'lucide-react';
 import {
 	Select,
 	SelectContent,
@@ -62,6 +64,15 @@ export default function SearchPage() {
 		setSearchParams(next);
 	};
 
+	const clearFilters = () => {
+		setKeyword('');
+		setCategory('All');
+		setMinPrice('');
+		setMaxPrice('');
+		setSort('price_asc');
+		setSearchParams(new URLSearchParams());
+	};
+
 	function addToCart(productData: ProductResponseType) {
 		const data: ICart = {
 			category: productData.category,
@@ -77,7 +88,7 @@ export default function SearchPage() {
 	}
 
 	return (
-		<main className="w-full max-w-[90rem] mx-auto py-8 px-4 md:px-6">
+		<main className="w-full max-w-360 mx-auto py-8 px-4 md:px-6">
 			<h1 className="text-2xl font-bold mb-6">Search products</h1>
 
 			<div className="flex flex-col gap-4 mb-6">
@@ -152,16 +163,47 @@ export default function SearchPage() {
 			</div>
 
 			{isPending ? (
-				<p className="text-muted-foreground">Loading...</p>
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+					{Array.from({ length: 8 }).map((_, index) => (
+						<Card key={index} className="pt-1">
+							<CardHeader className="p-0">
+								<div className="overflow-hidden rounded-lg">
+									<Skeleton className="h-48 w-full" />
+								</div>
+							</CardHeader>
+							<CardContent>
+								<Skeleton className="h-5 w-4/5 mb-2" />
+								<Skeleton className="h-4 w-full mb-2" />
+								<Skeleton className="h-4 w-11/12" />
+							</CardContent>
+							<CardFooter className="flex justify-between">
+								<Skeleton className="h-5 w-16" />
+								<Skeleton className="h-8 w-28 rounded-md" />
+							</CardFooter>
+						</Card>
+					))}
+				</div>
 			) : (
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 					{products?.length === 0 ? (
-						<p className="text-muted-foreground col-span-full">No products match your filters.</p>
+						<div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+							<SearchIcon className="h-10 w-10 text-primary mb-4" />
+							<h3 className="text-xl font-bold mb-2">No results</h3>
+							<p className="text-muted-foreground max-w-[520px]">
+								Try adjusting your keyword, category, or price range.
+							</p>
+							<div className="mt-6">
+								<Button onClick={clearFilters} size="lg" variant="outline">
+									Clear filters
+								</Button>
+							</div>
+						</div>
 					) : (
 						products?.map((product, index) => (
 							<Card
 								key={product.id}
-								className="cursor-pointer relative pt-1"
+								className="cursor-pointer relative pt-1 interactive group opacity-0 animate-[fadeInUp_400ms_var(--ease-spring)_forwards]"
+								style={{ animationDelay: `${index * 50}ms` }}
 								onClick={() =>
 									navigate(`/shop/item/${product.id}`, {
 										state: { productData: product, productImage: products ?? [], index },
@@ -175,12 +217,14 @@ export default function SearchPage() {
 										</Badge>
 									))}
 								</div>
-								<CardHeader>
-									<img
-										src={product.imageUrls?.[0] ?? '/general-image.jpg'}
-										alt={product.name}
-										className="object-cover w-full h-48"
-									/>
+								<CardHeader className="p-0">
+									<div className="overflow-hidden rounded-lg">
+										<img
+											src={product.imageUrls?.[0] ?? '/general-image.jpg'}
+											alt={product.name}
+											className="object-cover w-full h-48 transition-transform duration-300 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.05]"
+										/>
+									</div>
 								</CardHeader>
 								<CardContent>
 									<CardTitle>{product.name.toUpperCase()}</CardTitle>

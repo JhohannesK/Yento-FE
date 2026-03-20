@@ -19,7 +19,7 @@ export default function Home() {
 	const navigate = useNavigate();
 	const { categories } = useProduct();
 	const { setAddToCart } = useAppContext();
-	const { data: products } = useQuery<ProductResponseType[]>({
+	const { data: products, isPending: isProductsPending } = useQuery<ProductResponseType[]>({
 		queryKey: ['get-all-products', categorySelected],
 		queryFn: async () => {
 			const url =
@@ -96,6 +96,7 @@ export default function Home() {
 			<FeaturedProducts
 				categories={categories ?? []}
 				products={products ?? []}
+				isLoading={isProductsPending}
 				setCategorySelected={setCategorySelected}
 				handleNavigation={handleNavigation}
 				addToCart={addToCart}

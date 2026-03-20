@@ -1,6 +1,7 @@
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
 	Card,
 	CardContent,
@@ -54,7 +55,7 @@ export default function WishlistPage() {
 
 	if (!authenticated) {
 		return (
-			<main className="w-full max-w-[90rem] mx-auto py-12 px-4 md:px-6 text-center">
+			<main className="w-full max-w-360 mx-auto py-12 px-4 md:px-6 text-center">
 				<h1 className="text-2xl font-bold mb-4">Your wishlist</h1>
 				<p className="text-muted-foreground mb-6">Sign in to view and manage your wishlist.</p>
 				<Button onClick={() => navigate('/auth?auth=signin')}>Sign In</Button>
@@ -63,22 +64,51 @@ export default function WishlistPage() {
 	}
 
 	return (
-		<main className="w-full max-w-[90rem] mx-auto py-8 px-4 md:px-6">
+		<main className="w-full max-w-360 mx-auto py-8 px-4 md:px-6">
 			<h1 className="text-2xl font-bold mb-6">Your wishlist</h1>
 
 			{isPending ? (
-				<p className="text-muted-foreground">Loading...</p>
+				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+					{Array.from({ length: 8 }).map((_, index) => (
+						<Card key={index} className="relative">
+							<CardHeader className="p-0">
+								<div className="overflow-hidden rounded-lg">
+									<Skeleton className="h-48 w-full" />
+								</div>
+							</CardHeader>
+							<CardContent>
+								<Skeleton className="h-5 w-4/5 mb-2" />
+								<Skeleton className="h-4 w-full" />
+								<Skeleton className="h-4 w-11/12 mt-2" />
+							</CardContent>
+							<CardFooter className="flex justify-between">
+								<Skeleton className="h-5 w-16" />
+								<Skeleton className="h-8 w-28 rounded-md" />
+							</CardFooter>
+						</Card>
+					))}
+				</div>
 			) : products?.length === 0 ? (
-				<div className="text-center py-12">
-					<p className="text-muted-foreground mb-4">Your wishlist is empty.</p>
-					<Button asChild>
-						<Link to="/shop/search">Browse products</Link>
-					</Button>
+				<div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+					<Heart className="h-12 w-12 text-primary mb-4 animate-[gentleFloat_2.4s_ease-in-out_infinite]" />
+					<h3 className="text-xl font-bold mb-2">Your wishlist is empty</h3>
+					<p className="text-muted-foreground max-w-[520px]">
+						Favorite something you love and it will show up here for quick access.
+					</p>
+					<div className="mt-6">
+						<Button asChild size="lg">
+							<Link to="/shop/search">Browse products</Link>
+						</Button>
+					</div>
 				</div>
 			) : (
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 					{products?.map((product, index) => (
-						<Card key={product.id} className="relative">
+						<Card
+							key={product.id}
+							className="relative interactive group opacity-0 animate-[fadeInUp_400ms_var(--ease-spring)_forwards]"
+							style={{ animationDelay: `${index * 50}ms` }}
+						>
 							<Button
 								variant="ghost"
 								size="icon"
