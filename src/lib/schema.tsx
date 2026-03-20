@@ -11,9 +11,8 @@ export const signUpSchema = z
 		lastName: z.string(),
 		email: z.string().email().includes('@'),
 		username: z.string().min(3, 'Username is required'),
-		password: z.string().min(1),
+		password: z.string().min(8, 'Password must be at least 8 characters'),
 		confirmPassword: z.string(),
-		role: z.string(),
 	})
 	.refine((value) => value.password === value.confirmPassword, {
 		message: 'Password does not match',

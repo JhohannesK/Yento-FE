@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { SignInInputs, SignUpInputs } from "../types";
 import { axiosInstance } from "../api/axios";
 import { toast } from "sonner";
-import { saveToLocalStorage } from "../utils";
+import { saveToLocalStorage, sanitizeInternalRedirect } from "../utils";
 
 export const useAuth = () => {
    const queryClient = useQueryClient();
@@ -25,9 +25,8 @@ export const useAuth = () => {
       onSuccess: (data) => {
          saveToLocalStorage({ key: "user", state: data.user });
          queryClient.setQueryData(["user"], data.user);
-         const redirect = searchParams.get("redirect");
-         const target = redirect ? decodeURIComponent(redirect) : "/shop/home";
-         navigate(target.startsWith("/") ? target : `/${target}`, { replace: true });
+         const target = sanitizeInternalRedirect(searchParams.get("redirect"));
+         navigate(target, { replace: true });
       },
       onError: (error: Error & { response?: { data?: { message?: string } } }) => {
          toast.error(error.response?.data?.message ?? "Something occurred");

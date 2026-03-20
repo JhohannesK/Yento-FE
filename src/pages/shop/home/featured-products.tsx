@@ -33,7 +33,7 @@ const FeaturedProducts = ({
 	const navigate = useNavigate();
 
 	return (
-		<section className="w-full max-w-360 min-w-350 mx-auto py-8 sm:py-12 md:py-24 lg:py-32">
+		<section className="w-full max-w-360 mx-auto py-8 sm:py-12 md:py-24 lg:py-32">
 			<div className="container px-4 md:px-6">
 				<h2 className="mb-4 sm:mb-6 md:mb-8 text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl">
 					Featured Products

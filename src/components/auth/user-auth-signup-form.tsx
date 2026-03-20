@@ -34,7 +34,6 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 			email: '',
 			password: '',
 			confirmPassword: '',
-			role: 'User',
 		},
 	});
 
