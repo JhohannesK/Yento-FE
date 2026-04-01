@@ -34,7 +34,9 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ChevronLeft, Upload, Loader2 } from 'lucide-react';
 import { uploadImage } from '@/lib/cloudinary';
 import { toast } from 'sonner';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+
+type PendingImage = { file: File; previewUrl: string };
 
 export default function AdminNewItem() {
 	const {
@@ -52,7 +54,18 @@ export default function AdminNewItem() {
 	};
 	const productData = locationData?.product;
 	const [isUploading, setIsUploading] = useState(false);
+	const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
+	const pendingImagesRef = useRef(pendingImages);
+	pendingImagesRef.current = pendingImages;
 	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		return () => {
+			pendingImagesRef.current.forEach((p) =>
+				URL.revokeObjectURL(p.previewUrl),
+			);
+		};
+	}, []);
 
 	const form = useForm<AddNewProduct>({
 		resolver: zodResolver(addNewProductFormSchema),
@@ -71,33 +84,35 @@ export default function AdminNewItem() {
 
 	const imageUrls = form.watch('imageUrls') ?? [];
 
-	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+	function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
 		const files = e.target.files;
 		if (!files?.length) return;
-		setIsUploading(true);
-		try {
-			let current = form.getValues('imageUrls') ?? [];
-			for (let i = 0; i < files.length; i++) {
-				const file = files[i];
-				if (!file.type.startsWith('image/')) continue;
-				const url = await uploadImage(file);
-				current = [...current, url];
-				form.setValue('imageUrls', current);
-			}
-			toast.success('Image(s) uploaded');
-		} catch {
-			toast.error('Image upload failed');
-		} finally {
-			setIsUploading(false);
-			e.target.value = '';
+		const next: PendingImage[] = [];
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+			if (!file.type.startsWith('image/')) continue;
+			next.push({ file, previewUrl: URL.createObjectURL(file) });
 		}
+		if (next.length) setPendingImages((prev) => [...prev, ...next]);
+		e.target.value = '';
 	}
 
 	function removeImage(index: number) {
-		form.setValue(
-			'imageUrls',
-			imageUrls.filter((_, i) => i !== index)
-		);
+		const committed = form.getValues('imageUrls') ?? [];
+		if (index < committed.length) {
+			form.setValue(
+				'imageUrls',
+				committed.filter((_, i) => i !== index),
+			);
+			return;
+		}
+		const pendingIndex = index - committed.length;
+		setPendingImages((prev) => {
+			const copy = [...prev];
+			const [removed] = copy.splice(pendingIndex, 1);
+			if (removed) URL.revokeObjectURL(removed.previewUrl);
+			return copy;
+		});
 	}
 
 	const { fields, append, remove } = useFieldArray({
@@ -105,46 +120,73 @@ export default function AdminNewItem() {
 		control: form.control,
 	});
 
-	function onSubmit(values: AddNewProduct) {
-		if (editMode) {
-			editProduct({
-				product: values,
-				productId: productData.id,
-			});
-		} else {
-			addNewProduct(values);
+	async function onSubmit(values: AddNewProduct) {
+		const committed = values.imageUrls ?? [];
+		const uploaded: string[] = [];
+		if (pendingImages.length > 0) {
+			setIsUploading(true);
+			try {
+				for (const { file } of pendingImages) {
+					uploaded.push(await uploadImage(file));
+				}
+			} catch {
+				toast.error('Image upload failed');
+				setIsUploading(false);
+				return;
+			}
+			setIsUploading(false);
+		}
+		const product: AddNewProduct = {
+			...values,
+			imageUrls: [...committed, ...uploaded],
+		};
+		try {
+			if (editMode) {
+				await editProduct({
+					product,
+					productId: productData.id,
+				});
+			} else {
+				await addNewProduct(product);
+			}
+			pendingImages.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+			setPendingImages([]);
+		} catch {
+			// useProduct mutations already toast on error
 		}
 	}
 
 	return (
-		<div className='container mx-auto px-4 py-8 flex-1 lg:w-[120rem]'>
+		<div className="container mx-auto px-4 py-8 flex-1 lg:w-[120rem]">
 			<Link
-				to='/shop/home'
-				className='inline-flex items-center mb-4 text-sm font-medium text-muted-foreground hover:text-primary'
+				to="/shop/home"
+				className="inline-flex items-center mb-4 text-sm font-medium text-muted-foreground hover:text-primary"
 			>
-				<ChevronLeft className='w-4 h-4 mr-2' />
+				<ChevronLeft className="w-4 h-4 mr-2" />
 				Back to Home
 			</Link>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="space-y-8"
+				>
 					<Card>
 						<CardHeader>
 							<CardTitle>Add New Product</CardTitle>
 							<CardDescription>
-								Enter the details of the new product to add to the
-								inventory.
+								Enter the details of the new product to add to the inventory.
 							</CardDescription>
 						</CardHeader>
-						<CardContent className='space-y-6'>
+						<CardContent className="space-y-6">
 							<FormField
 								control={form.control}
-								name='name'
+								name="name"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Product Name</FormLabel>
 										<FormControl>
 											<Input
-												placeholder='Enter product name'
+												placeholder="Enter product name"
 												{...field}
 											/>
 										</FormControl>
@@ -152,21 +194,19 @@ export default function AdminNewItem() {
 									</FormItem>
 								)}
 							/>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<FormField
 									control={form.control}
-									name='stockQuantity'
+									name="stockQuantity"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Stock Quantity</FormLabel>
 											<FormControl>
 												<Input
-													type='number'
+													type="number"
 													{...field}
 													onChange={(e) =>
-														field.onChange(
-															parseInt(e.target.value, 10)
-														)
+														field.onChange(parseInt(e.target.value, 10))
 													}
 												/>
 											</FormControl>
@@ -176,42 +216,45 @@ export default function AdminNewItem() {
 								/>
 								<FormField
 									control={form.control}
-									name='minimumStockLevel'
+									name="minimumStockLevel"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Minimum Stock Level</FormLabel>
+											<FormLabel>
+												Minimum Stock Level (not shown to customers)
+											</FormLabel>
 											<FormControl>
 												<Input
-													type='number'
+													type="number"
 													{...field}
 													onChange={(e) =>
-														field.onChange(
-															parseInt(e.target.value, 10)
-														)
+														field.onChange(parseInt(e.target.value, 10))
 													}
 												/>
 											</FormControl>
+											<FormDescription>
+												This is the minimum stock level for the product. When
+												the stock level is below this level, you will be
+												notified.
+											</FormDescription>
 											<FormMessage />
 										</FormItem>
 									)}
 								/>
 							</div>
-							<div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								<FormField
 									control={form.control}
-									name='price'
+									name="price"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Price</FormLabel>
 											<FormControl>
 												<Input
-													type='number'
-													step='0.01'
+													type="number"
+													step="0.01"
 													{...field}
 													onChange={(e) =>
-														field.onChange(
-															parseFloat(e.target.value)
-														)
+														field.onChange(parseFloat(e.target.value))
 													}
 												/>
 											</FormControl>
@@ -221,7 +264,7 @@ export default function AdminNewItem() {
 								/>
 								<FormField
 									control={form.control}
-									name='category'
+									name="category"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Category</FormLabel>
@@ -231,7 +274,7 @@ export default function AdminNewItem() {
 											>
 												<FormControl>
 													<SelectTrigger>
-														<SelectValue placeholder='Select a category' />
+														<SelectValue placeholder="Select a category" />
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
@@ -252,13 +295,13 @@ export default function AdminNewItem() {
 							</div>
 							<FormField
 								control={form.control}
-								name='description'
+								name="description"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Description</FormLabel>
 										<FormControl>
 											<Textarea
-												placeholder='Enter product description'
+												placeholder="Enter product description"
 												{...field}
 											/>
 										</FormControl>
@@ -268,49 +311,86 @@ export default function AdminNewItem() {
 							/>
 							<FormField
 								control={form.control}
-								name='imageUrls'
+								name="imageUrls"
 								render={() => (
 									<FormItem>
 										<FormLabel>Product Images (e.g. per variant)</FormLabel>
 										<FormControl>
-											<div className='space-y-2'>
+											<div className="space-y-2">
 												<input
 													ref={fileInputRef}
-													type='file'
-													accept='image/*'
+													type="file"
+													accept="image/*"
 													multiple
-													className='hidden'
+													className="hidden"
 													onChange={handleFileChange}
-													disabled={isUploading}
+													disabled={
+														isUploading ||
+														isProductAdditionPending ||
+														isProductEditingPending
+													}
 												/>
 												<Button
-													type='button'
-													variant='outline'
+													type="button"
+													variant="outline"
 													onClick={() => fileInputRef.current?.click()}
-													disabled={isUploading}
+													disabled={
+														isUploading ||
+														isProductAdditionPending ||
+														isProductEditingPending
+													}
 												>
 													{isUploading ? (
-														<Loader2 className='h-4 w-4 animate-spin' />
+														<Loader2 className="h-4 w-4 animate-spin" />
 													) : (
-														<Upload className='h-4 w-4 mr-2' />
+														<Upload className="h-4 w-4 mr-2" />
 													)}
 													{isUploading ? 'Uploading…' : 'Add image(s)'}
 												</Button>
-												{imageUrls.length > 0 && (
-													<div className='mt-2 flex flex-wrap gap-2'>
+												<FormDescription>
+													Images are uploaded when you save the product.
+												</FormDescription>
+												{imageUrls.length + pendingImages.length > 0 && (
+													<div className="mt-2 flex flex-wrap gap-2">
 														{imageUrls.map((url, idx) => (
-															<div key={url} className='relative'>
+															<div
+																key={url}
+																className="relative"
+															>
 																<img
 																	src={url}
 																	alt={`Preview ${idx + 1}`}
-																	className='h-32 w-32 object-cover rounded border'
+																	className="h-32 w-32 object-cover rounded border"
 																/>
 																<Button
-																	type='button'
-																	variant='destructive'
-																	size='icon'
-																	className='absolute -top-2 -right-2 h-6 w-6'
+																	type="button"
+																	variant="destructive"
+																	size="icon"
+																	className="absolute -top-2 -right-2 h-6 w-6"
 																	onClick={() => removeImage(idx)}
+																>
+																	×
+																</Button>
+															</div>
+														))}
+														{pendingImages.map((p, idx) => (
+															<div
+																key={p.previewUrl}
+																className="relative"
+															>
+																<img
+																	src={p.previewUrl}
+																	alt={`New ${idx + 1}`}
+																	className="h-32 w-32 object-cover rounded border"
+																/>
+																<Button
+																	type="button"
+																	variant="destructive"
+																	size="icon"
+																	className="absolute -top-2 -right-2 h-6 w-6"
+																	onClick={() =>
+																		removeImage(imageUrls.length + idx)
+																	}
 																>
 																	×
 																</Button>
@@ -326,19 +406,17 @@ export default function AdminNewItem() {
 							/>
 							<FormField
 								control={form.control}
-								name='tags'
+								name="tags"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Tags</FormLabel>
 										<FormControl>
 											<Input
-												placeholder='Enter tags separated by commas'
+												placeholder="Enter tags separated by commas"
 												{...field}
 												onChange={(e) =>
 													field.onChange(
-														e.target.value
-															.split(',')
-															.map((tag) => tag.trim())
+														e.target.value.split(',').map((tag) => tag.trim()),
 													)
 												}
 											/>
@@ -351,11 +429,14 @@ export default function AdminNewItem() {
 								)}
 							/>
 							<div>
-								<h3 className='text-lg font-medium mb-2'>Variants</h3>
+								<h3 className="text-lg font-medium mb-2">Variants</h3>
 								{fields.map((field, index) => (
-									<Card key={field.id} className='mb-4'>
-										<CardContent className='pt-6'>
-											<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+									<Card
+										key={field.id}
+										className="mb-4"
+									>
+										<CardContent className="pt-6">
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 												<FormField
 													control={form.control}
 													name={`variants.${index}.size`}
@@ -413,20 +494,20 @@ export default function AdminNewItem() {
 													name={`variants.${index}.priceModifier`}
 													render={({ field }) => (
 														<FormItem>
-															<FormLabel>
-																Price Modifier
-															</FormLabel>
+															<FormLabel>Price Modifier</FormLabel>
+															<FormDescription>
+																Enter the price modifier for the variant in
+																percentage. For example, if the price is $100
+																and the price modifier is 10%, the price will be
+																$110.
+															</FormDescription>
 															<FormControl>
 																<Input
-																	type='number'
-																	step='0.01'
+																	type="number"
+																	step="0.01"
 																	{...field}
 																	onChange={(e) =>
-																		field.onChange(
-																			parseFloat(
-																				e.target.value
-																			)
-																		)
+																		field.onChange(parseFloat(e.target.value))
 																	}
 																/>
 															</FormControl>
@@ -436,9 +517,9 @@ export default function AdminNewItem() {
 												/>
 											</div>
 											<Button
-												type='button'
-												variant='destructive'
-												className='mt-2'
+												type="button"
+												variant="destructive"
+												className="mt-2"
 												onClick={() => remove(index)}
 											>
 												Remove Variant
@@ -447,12 +528,9 @@ export default function AdminNewItem() {
 									</Card>
 								))}
 								<Button
-									type='button'
-									variant='outline'
-									disabled={
-										isProductAdditionPending ||
-										isProductEditingPending
-									}
+									type="button"
+									variant="outline"
+									disabled={isProductAdditionPending || isProductEditingPending}
 									onClick={() =>
 										append({
 											size: '',
@@ -470,9 +548,11 @@ export default function AdminNewItem() {
 						<CardFooter>
 							<Button
 								disabled={
-									isProductAdditionPending || isProductEditingPending
+									isUploading ||
+									isProductAdditionPending ||
+									isProductEditingPending
 								}
-								type='submit'
+								type="submit"
 							>
 								{editMode ? 'Update Product' : 'Add Product'}
 							</Button>

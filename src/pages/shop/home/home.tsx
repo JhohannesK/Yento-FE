@@ -19,14 +19,17 @@ export default function Home() {
 	const navigate = useNavigate();
 	const { categories } = useProduct();
 	const { setAddToCart } = useAppContext();
-	const { data: products, isPending: isProductsPending } = useQuery<ProductResponseType[]>({
+	const { data: products, isPending: isProductsPending } = useQuery<
+		ProductResponseType[]
+	>({
 		queryKey: ['get-all-products', categorySelected],
 		queryFn: async () => {
 			const url =
 				categorySelected && categorySelected !== 'All'
 					? `/products/get-all-products?category=${encodeURIComponent(categorySelected)}`
 					: '/products/get-all-products';
-			const res = await axiosInstance.get<ApiResponse<ProductResponseType[]>>(url);
+			const res =
+				await axiosInstance.get<ApiResponse<ProductResponseType[]>>(url);
 			return res.data.data ?? [];
 		},
 	});
@@ -60,7 +63,7 @@ export default function Home() {
 	return (
 		<main className="flex-1">
 			<section className="w-full py-8 sm:py-12 md:py-24 lg:py-32 xl:py-48 bg-muted">
-				<div className="container px-4 sm:px-6 max-w-6xl mx-auto">
+				<div className="container px-4 sm:px-6 min-w-6xl mx-auto">
 					<div className="flex flex-col items-center space-y-4 text-center">
 						<div className="space-y-2">
 							<h1 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl/none">
@@ -100,7 +103,7 @@ export default function Home() {
 				setCategorySelected={setCategorySelected}
 				handleNavigation={handleNavigation}
 				addToCart={addToCart}
-				productImage={productImage ?? [] as ProductResponseType[]}
+				productImage={productImage ?? ([] as ProductResponseType[])}
 			/>
 			<Newsletter />
 		</main>

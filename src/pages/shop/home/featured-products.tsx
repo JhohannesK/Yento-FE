@@ -47,18 +47,6 @@ const FeaturedProducts = ({
 							>
 								All
 							</TabsTrigger>
-							<TabsTrigger
-								onClick={() => setCategorySelected('Men')}
-								value="men"
-							>
-								Men
-							</TabsTrigger>
-							<TabsTrigger
-								onClick={() => setCategorySelected('Women')}
-								value="women"
-							>
-								Women
-							</TabsTrigger>
 							{categories?.map((category) => (
 								<TabsTrigger
 									key={category.id}
