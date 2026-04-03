@@ -8,7 +8,7 @@ import type {
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createProduct, updateProduct } from '../api/product';
-import { isAuthenticated } from '../auth';
+import { isAdmin, isAuthenticated } from '../auth';
 
 const useProduct = () => {
 	const navigate = useNavigate();
@@ -82,7 +82,7 @@ const useProduct = () => {
 			);
 			return res.data.data ?? [];
 		},
-		enabled: isAuthenticated(),
+		enabled: isAuthenticated() && isAdmin(),
 	});
 
 	return {
