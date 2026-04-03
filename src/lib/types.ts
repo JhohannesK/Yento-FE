@@ -35,21 +35,39 @@ export type ProductResponseType = {
    updatedAt: string
 }
 
+export type ICartVariant = {
+	id: number;
+	size: string;
+	color: string;
+	sku: string;
+	priceModifier: number;
+};
+
 export interface ICart {
-   id: number,
-   name: string,
-   description: string,
-   price: number,
-   category: string,
-   quantity: number,
-   tags: string[],
-   variant: {
-      id: number,
-      size: string,
-      color: string,
-      sku: string,
-      priceModifier: number
-   },
+	id: number;
+	name: string;
+	description: string;
+	price: number;
+	category: string;
+	quantity: number;
+	tags: string[];
+	/** Absent when the product has no variants (checkout sends null `productVariantId`). */
+	variant: ICartVariant | null;
+}
+
+/** First catalog variant for quick-add flows, or null when the product has no variants. */
+export function primaryVariantForCart(
+	product: ProductResponseType,
+): ICartVariant | null {
+	const v = product.variants[0];
+	if (!v) return null;
+	return {
+		id: v.id,
+		size: v.size,
+		color: v.color,
+		sku: v.sku,
+		priceModifier: v.priceModifier,
+	};
 }
 
 export interface IProductVariant {
@@ -73,14 +91,14 @@ export type AddNewProductType = {
 }
 
 export type OrderPayloadType = {
-   orderItems: {
-      productId: number,
-      productVariantId: number,
-      quantity: number,
-      unitPrice: number
-   }[],
-   paymentMethod: string
-}
+	orderItems: {
+		productId: number;
+		productVariantId: number | null;
+		quantity: number;
+		unitPrice: number;
+	}[];
+	paymentMethod: string;
+};
 
 export type OrderHistoryTypes = {
    id: number,

@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { searchProducts, type SearchParams } from '@/lib/api/product';
 import useProduct from '@/lib/hooks/useProduct';
-import { ICart, ProductResponseType } from '@/lib/types';
+import { ICart, primaryVariantForCart, ProductResponseType } from '@/lib/types';
 import { useAppContext } from '@/lib/appContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -82,7 +82,7 @@ export default function SearchPage() {
 			price: productData.price,
 			tags: productData?.tags ?? [],
 			quantity: 1,
-			variant: productData.variants[0],
+			variant: primaryVariantForCart(productData),
 		};
 		setAddToCart((prev) => [...prev, data]);
 	}

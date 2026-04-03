@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { getWishlist, removeFromWishlist } from '@/lib/api/wishlist';
 import { isAuthenticated } from '@/lib/auth';
-import { ICart, ProductResponseType } from '@/lib/types';
+import { ICart, primaryVariantForCart, ProductResponseType } from '@/lib/types';
 import { useAppContext } from '@/lib/appContext';
 import { Heart } from 'lucide-react';
 import { toast } from 'sonner';
@@ -47,7 +47,7 @@ export default function WishlistPage() {
 			price: productData.price,
 			tags: productData?.tags ?? [],
 			quantity: 1,
-			variant: productData.variants[0],
+			variant: primaryVariantForCart(productData),
 		};
 		setAddToCart((prev) => [...prev, data]);
 		toast.success('Added to cart');

@@ -46,7 +46,7 @@ export default function CheckoutPage() {
 		const orderPayload = {
 			orderItems: cart.map((item) => ({
 				productId: item.id,
-				productVariantId: item.variant.id,
+				productVariantId: item.variant?.id ?? null,
 				quantity: item.quantity,
 				unitPrice: item.price,
 			})),
@@ -86,7 +86,9 @@ export default function CheckoutPage() {
 								<div>
 									<h3 className='font-semibold'>{item.name}</h3>
 									<p className='text-sm text-gray-500'>
-										{item?.variant?.size}, {item?.variant?.color}
+										{item.variant
+											? `${item.variant.size}, ${item.variant.color}`
+											: 'Standard'}
 									</p>
 									<p className='text-sm'>Quantity: {item.quantity}</p>
 								</div>

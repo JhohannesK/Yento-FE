@@ -2,7 +2,12 @@ import { Button } from '@/components/ui/button';
 
 import { useQuery } from '@tanstack/react-query';
 import { axiosInstance } from '@/lib/api/axios';
-import { type ApiResponse, ICart, ProductResponseType } from '@/lib/types';
+import {
+	type ApiResponse,
+	ICart,
+	primaryVariantForCart,
+	ProductResponseType,
+} from '@/lib/types';
 import { isAuthenticated } from '@/lib/auth';
 import { loadFromLocalStorage } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -42,7 +47,7 @@ export default function Home() {
 			price: productData.price,
 			tags: productData?.tags ?? [],
 			quantity: 1,
-			variant: productData.variants[0],
+			variant: primaryVariantForCart(productData),
 		};
 		setAddToCart((prev) => [...prev, data]);
 	}

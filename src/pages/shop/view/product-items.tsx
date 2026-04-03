@@ -61,7 +61,23 @@ export default function ProductDetails() {
 		},
 	});
 
+	const hasVariants = productData.variants.length > 0;
+
 	function addToCart() {
+		let variantForCart: ICart['variant'] = null;
+		if (hasVariants) {
+			const raw =
+				(selectedVariant &&
+					productData.variants.find((v) => v.sku === selectedVariant.sku)) ??
+				productData.variants[0];
+			variantForCart = {
+				id: raw.id,
+				size: raw.size,
+				color: raw.color,
+				sku: raw.sku,
+				priceModifier: raw.priceModifier,
+			};
+		}
 		const data: ICart = {
 			category: productData.category,
 			description: productData.description,
@@ -70,7 +86,7 @@ export default function ProductDetails() {
 			price: productData.price,
 			tags: productData.tags ?? [],
 			quantity,
-			variant: selectedVariant as ICart['variant'],
+			variant: variantForCart,
 		};
 		setAddToCart((prev) => [...prev, data]);
 	}
@@ -87,9 +103,9 @@ export default function ProductDetails() {
 	const incrementQuantity = () => setQuantity((prev) => prev + 1);
 	const decrementQuantity = () =>
 		setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-	const [selectedVariant, setSelectedVariant] = useState<IProductVariant>(
-		productData.variants[0],
-	);
+	const [selectedVariant, setSelectedVariant] = useState<
+		IProductVariant | undefined
+	>(productData.variants[0]);
 	const imageFallback =
 		Array.isArray(productImage) &&
 		typeof productImage[index] === 'object' &&
@@ -175,37 +191,41 @@ export default function ProductDetails() {
 								'Experience crystal-clear audio with our premium wireless headphones. Featuring advanced noise-cancellation technology and long-lasting battery life, these headphones are perfect for music lovers and professionals alike.'}
 						</p>
 						<div className="space-y-4">
-							<div className="space-y-4">
-								<div>
-									<h3 className="mb-2 text-lg font-semibold">Select Variant</h3>
-									<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-										{productData.variants.map((variant) => (
-											<Card
-												key={variant.sku}
-												className={cn(
-													'cursor-pointer transition-all',
-													selectedVariant?.sku === variant.sku
-														? 'ring-2 ring-primary'
-														: '',
-												)}
-												onClick={() => setSelectedVariant(variant)}
-											>
-												<CardContent className="p-4">
-													<div className="font-semibold">{variant.color}</div>
-													<div className="text-sm text-muted-foreground">
-														{variant.size}
-													</div>
-													<div className="mt-2 text-sm font-medium">
-														{variant.priceModifier > 0
-															? `+$${variant.priceModifier.toFixed(2)}`
-															: 'No extra cost'}
-													</div>
-												</CardContent>
-											</Card>
-										))}
+							{productData.variants.length > 0 && (
+								<div className="space-y-4">
+									<div>
+										<h3 className="mb-2 text-lg font-semibold">
+											Select Variant
+										</h3>
+										<div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+											{productData.variants.map((variant) => (
+												<Card
+													key={variant.sku}
+													className={cn(
+														'cursor-pointer transition-all',
+														selectedVariant?.sku === variant.sku
+															? 'ring-2 ring-primary'
+															: '',
+													)}
+													onClick={() => setSelectedVariant(variant)}
+												>
+													<CardContent className="p-4">
+														<div className="font-semibold">{variant.color}</div>
+														<div className="text-sm text-muted-foreground">
+															{variant.size}
+														</div>
+														<div className="mt-2 text-sm font-medium">
+															{variant.priceModifier > 0
+																? `+$${variant.priceModifier.toFixed(2)}`
+																: 'No extra cost'}
+														</div>
+													</CardContent>
+												</Card>
+											))}
+										</div>
 									</div>
 								</div>
-							</div>
+							)}
 							<div className="flex items-center gap-x-2">
 								<p className="block text-sm font-medium">In Stock:</p>
 								<p>{productData.stockQuantity}</p>
@@ -230,9 +250,7 @@ export default function ProductDetails() {
 										id="quantity"
 										className="w-20 text-center"
 										value={quantity}
-										onChange={(e) =>
-											setQuantity(parseInt(e.target.value) || 1)
-										}
+										onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
 										min="1"
 									/>
 									<Button
@@ -247,7 +265,9 @@ export default function ProductDetails() {
 						</div>
 						<div className="flex space-x-4">
 							<Button
-								disabled={alreadyAdded || !selectedVariant}
+								disabled={
+									alreadyAdded || (hasVariants && !selectedVariant)
+								}
 								onClick={addToCart}
 								className="flex-1"
 							>

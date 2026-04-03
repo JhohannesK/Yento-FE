@@ -39,48 +39,51 @@ export function UserAuthSignInForm({ className, ...props }: UserAuthFormProps) {
 		signIn.mutate(values);
 	}
 	return (
-		<div className={cn('grid gap-6', className)} {...props}>
+		<div
+			className={cn('grid gap-6', className)}
+			{...props}
+		>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<div className='grid gap-2'>
-						<div className='grid gap-1'>
+					<div className="grid gap-2">
+						<div className="grid gap-1">
 							<FormField
 								control={form.control}
-								name='email'
+								name="email"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Email</FormLabel>
 										<FormControl>
 											<Input
-												className='bg-white text-black'
+												className="bg-white text-black"
 												{...field}
-												id='email'
-												placeholder='name@example.com'
-												type='email'
-												autoCapitalize='none'
-												autoComplete='email'
-												autoCorrect='off'
+												id="email"
+												placeholder="name@example.com"
+												type="email"
+												autoCapitalize="none"
+												autoComplete="email"
+												autoCorrect="off"
 												disabled={signIn.isPending}
 											/>
 										</FormControl>
-										<FormDescription>
+										{/* <FormDescription>
 											This is your public display name.
-										</FormDescription>
+										</FormDescription> */}
 										<FormMessage />
 									</FormItem>
 								)}
 							/>
 							<FormField
 								control={form.control}
-								name='password'
+								name="password"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Password</FormLabel>
 										<FormControl>
 											<Input
-												id='password'
-												type='password'
-												placeholder='password'
+												id="password"
+												type="password"
+												placeholder="password"
 												{...field}
 											/>
 										</FormControl>
@@ -91,30 +94,37 @@ export function UserAuthSignInForm({ className, ...props }: UserAuthFormProps) {
 							/>
 						</div>
 
-						<Button type={'submit'} disabled={signIn.isPending}>
+						<Button
+							type={'submit'}
+							disabled={signIn.isPending}
+						>
 							{signIn.isPending && (
-								<Icons.spinner className='w-4 h-4 mr-2 animate-spin' />
+								<Icons.spinner className="w-4 h-4 mr-2 animate-spin" />
 							)}
 							Sign In with Email
 						</Button>
 					</div>
 				</form>
 			</Form>
-			<div className='relative'>
-				<div className='absolute inset-0 flex items-center'>
-					<span className='w-full border-t' />
+			<div className="relative">
+				<div className="absolute inset-0 flex items-center">
+					<span className="w-full border-t" />
 				</div>
-				<div className='relative flex justify-center text-xs uppercase'>
-					<span className='px-2 bg-background text-muted-foreground'>
+				<div className="relative flex justify-center text-xs uppercase">
+					<span className="px-2 bg-background text-muted-foreground">
 						Or continue with
 					</span>
 				</div>
 			</div>
-			<Button variant='default' type='button' disabled={signIn.isPending}>
+			<Button
+				variant="default"
+				type="button"
+				disabled={signIn.isPending}
+			>
 				{signIn.isPending ? (
-					<Icons.spinner className='w-4 h-4 mr-2 animate-spin text-white' />
+					<Icons.spinner className="w-4 h-4 mr-2 animate-spin text-white" />
 				) : (
-					<Icons.google className='w-4 h-4 mr-2 text-white' />
+					<Icons.google className="w-4 h-4 mr-2 text-white" />
 				)}{' '}
 				Google
 			</Button>
