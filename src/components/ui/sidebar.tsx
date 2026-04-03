@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import { PanelLeft } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -327,8 +327,8 @@ const SidebarTrigger = React.forwardRef<
 			onClick={toggleSidebar}
 			{...props}
 		>
-			<PanelLeft className="size-5 rtl:rotate-180" />
-			<span className="sr-only">Toggle Sidebar</span>
+			<Menu className="size-5" strokeWidth={2} />
+			<span className="sr-only">Open menu</span>
 		</Button>
 	);
 });

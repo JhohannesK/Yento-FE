@@ -19,8 +19,11 @@ const Header = () => {
 
 	return (
 		<header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-			<div className="flex items-center h-14 px-4 sm:px-6 gap-4">
-				<SidebarTrigger className="-ml-1 md:hidden" aria-label="Open menu" />
+			<div className="flex items-center h-14 px-4 sm:px-6 gap-2 sm:gap-4 min-w-0">
+				<SidebarTrigger
+					className="-ml-1 shrink-0 lg:hidden active:scale-[0.97] transition-transform duration-150 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]"
+					aria-label="Open menu"
+				/>
 				<Link
 					to="/shop/home"
 					className="flex items-center shrink-0 gap-2 min-w-0"
@@ -29,13 +32,13 @@ const Header = () => {
 					<span className="font-bold truncate">Yeton</span>
 				</Link>
 
-				{/* Desktop nav */}
-				<nav className="hidden md:flex items-center ml-auto gap-2 sm:gap-4">
+				{/* Desktop / large tablet nav */}
+				<nav className="hidden lg:flex items-center ml-auto gap-2 sm:gap-4 shrink-0">
 					{navLinks.map(({ to, label, icon: Icon }) => (
 						<Link
 							key={to}
 							to={to}
-							className="relative p-2 text-sm font-medium transition-colors hover:text-primary rounded-md"
+							className="relative p-2 text-sm font-medium rounded-md text-muted-foreground transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] hover:text-primary active:scale-[0.97] motion-reduce:active:scale-100"
 							aria-label={label}
 						>
 							<Icon className="h-5 w-5" />
@@ -61,11 +64,11 @@ const Header = () => {
 					)}
 				</nav>
 
-				{/* Mobile: cart + sidebar is opened via SidebarTrigger */}
-				<div className="flex items-center gap-2 ml-auto md:hidden">
+				{/* Compact widths: cart shortcut; full nav lives in sheet */}
+				<div className="flex items-center gap-2 ml-auto lg:hidden">
 					<Link
 						to="/shop/cart"
-						className="relative p-2"
+						className="relative shrink-0 rounded-md p-2 text-muted-foreground transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] hover:text-primary active:scale-[0.97] motion-reduce:active:scale-100"
 						aria-label="Cart"
 					>
 						<ShoppingCart className="h-5 w-5" />

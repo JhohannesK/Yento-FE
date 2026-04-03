@@ -1,6 +1,7 @@
-import { Heart, Package, Search, ShoppingCart, User } from 'lucide-react';
+import { Heart, Package, Search, ShoppingCart, User, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { SheetClose } from '@/components/ui/sheet';
 import {
 	Sidebar,
 	SidebarContent,
@@ -12,6 +13,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	useSidebar,
 } from '@/components/ui/sidebar';
 import { useAppContext } from '@/lib/appContext';
 import { isAuthenticated } from '@/lib/auth';
@@ -26,20 +28,35 @@ export function AppSidebar() {
 	const navigate = useNavigate();
 	const { cart } = useAppContext();
 	const authenticated = isAuthenticated();
+	const { setOpenMobile } = useSidebar();
+
+	const closeMobile = () => setOpenMobile(false);
 
 	return (
 		<Sidebar collapsible="offcanvas" side="left">
-			<SidebarHeader>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton asChild>
-							<Link to="/shop/home" className="flex items-center gap-2">
-								<Package className="size-5" />
-								<span>Yeton</span>
-							</Link>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
+			<SidebarHeader className="border-b border-sidebar-border px-4 py-3">
+				<div className="flex items-center justify-between gap-3">
+					<SheetClose asChild>
+						<Link
+							to="/shop/home"
+							className="flex min-w-0 items-center gap-2 font-semibold tracking-tight outline-none ring-sidebar-ring focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar rounded-md"
+						>
+							<Package className="size-5 shrink-0" />
+							<span className="truncate">Yeton</span>
+						</Link>
+					</SheetClose>
+					<SheetClose asChild>
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon"
+							className="shrink-0 active:scale-[0.97] transition-transform duration-150 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)]"
+							aria-label="Close menu"
+						>
+							<X className="size-4" />
+						</Button>
+					</SheetClose>
+				</div>
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
@@ -48,7 +65,7 @@ export function AppSidebar() {
 						<SidebarMenu>
 							<SidebarMenuItem>
 								<SidebarMenuButton asChild>
-									<Link to="/shop/home">
+									<Link to="/shop/home" onClick={closeMobile}>
 										<Package className="size-4" />
 										Home
 									</Link>
@@ -57,7 +74,11 @@ export function AppSidebar() {
 							{navLinks.map(({ to, label, icon: Icon }) => (
 								<SidebarMenuItem key={to}>
 									<SidebarMenuButton asChild>
-										<Link to={to} className="flex items-center gap-2">
+										<Link
+											to={to}
+											className="flex items-center gap-2"
+											onClick={closeMobile}
+										>
 											<Icon className="size-4" />
 											{label}
 											{to === '/shop/cart' && cart && cart.length > 0 && (
@@ -78,7 +99,7 @@ export function AppSidebar() {
 					{authenticated ? (
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild>
-								<Link to="/shop/order/history">
+								<Link to="/shop/order/history" onClick={closeMobile}>
 									<User className="size-4" />
 									Order History
 								</Link>
@@ -89,7 +110,10 @@ export function AppSidebar() {
 							<Button
 								variant="ghost"
 								className="w-full justify-start gap-2"
-								onClick={() => navigate('/auth?auth=signin')}
+								onClick={() => {
+									closeMobile();
+									navigate('/auth?auth=signin');
+								}}
 							>
 								<User className="size-4" />
 								Sign In

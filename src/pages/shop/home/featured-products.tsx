@@ -33,30 +33,32 @@ const FeaturedProducts = ({
 	const navigate = useNavigate();
 
 	return (
-		<section className="w-full max-w-360 mx-auto py-8 sm:py-12 md:py-24 lg:py-32">
-			<div className="container px-4 md:px-6">
-				<h2 className="mb-4 sm:mb-6 md:mb-8 text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl">
+		<section className="mx-auto w-full max-w-[90rem] py-8 sm:py-12 md:py-24 lg:py-32">
+			<div className="container min-w-0 px-4 md:px-6">
+				<h2 className="mb-4 text-balance text-2xl font-bold tracking-tighter sm:mb-6 sm:text-3xl md:mb-8 md:text-4xl lg:text-5xl">
 					Featured Products
 				</h2>
-				<div className="mb-3">
+				<div className="mb-3 -mx-4 px-4 sm:mx-0 sm:px-0">
 					<Tabs defaultValue="all">
-						<TabsList>
-							<TabsTrigger
-								onClick={() => setCategorySelected('All')}
-								value="all"
-							>
-								All
-							</TabsTrigger>
-							{categories?.map((category) => (
+						<div className="overflow-x-auto overscroll-x-contain pb-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]">
+							<TabsList className="inline-flex h-auto min-h-9 w-max max-w-none flex-nowrap gap-1">
 								<TabsTrigger
-									key={category.id}
-									onClick={() => setCategorySelected(category.name)}
-									value={category.name.toLowerCase()}
+									onClick={() => setCategorySelected('All')}
+									value="all"
 								>
-									{category.name}
+									All
 								</TabsTrigger>
-							))}
-						</TabsList>
+								{categories?.map((category) => (
+									<TabsTrigger
+										key={category.id}
+										onClick={() => setCategorySelected(category.name)}
+										value={category.name.toLowerCase()}
+									>
+										{category.name}
+									</TabsTrigger>
+								))}
+							</TabsList>
+						</div>
 					</Tabs>
 				</div>
 				<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -66,7 +68,7 @@ const FeaturedProducts = ({
 								key={index}
 								className="pt-1 relative"
 							>
-								<div className="absolute top-0.5 right-6 flex gap-x-1">
+								<div className="absolute top-0.5 right-3 z-10 flex max-w-[45%] flex-wrap justify-end gap-1 sm:right-6 sm:max-w-none sm:flex-nowrap">
 									<Skeleton className="h-5 w-14 rounded-full" />
 									<Skeleton className="h-5 w-10 rounded-full" />
 								</div>
@@ -75,14 +77,14 @@ const FeaturedProducts = ({
 										<Skeleton className="h-48 w-full" />
 									</div>
 								</CardHeader>
-								<CardContent>
+								<CardContent className="min-w-0">
 									<Skeleton className="h-5 w-4/5 mb-2" />
 									<Skeleton className="h-4 w-full mb-2" />
 									<Skeleton className="h-4 w-11/12" />
 								</CardContent>
-								<CardFooter className="flex justify-between">
+								<CardFooter className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 									<Skeleton className="h-5 w-16" />
-									<Skeleton className="h-8 w-28 rounded-md" />
+									<Skeleton className="h-8 w-full rounded-md sm:w-28" />
 								</CardFooter>
 							</Card>
 						))
@@ -110,7 +112,7 @@ const FeaturedProducts = ({
 								style={{ animationDelay: `${index * 50}ms` }}
 								onClick={() => handleNavigation(product, index)}
 							>
-								<div className="absolute top-0.5 right-6 flex gap-x-1">
+								<div className="absolute top-0.5 right-3 z-10 flex max-w-[45%] flex-wrap justify-end gap-1 sm:right-6 sm:max-w-none sm:flex-nowrap">
 									{product.tags?.map((tag) => (
 										<Badge
 											key={tag}
@@ -134,14 +136,16 @@ const FeaturedProducts = ({
 										/>
 									</div>
 								</CardHeader>
-								<CardContent>
-									<CardTitle>{product.name.toUpperCase()}</CardTitle>
-									<p className="text-muted-foreground line-clamp-2">
+								<CardContent className="min-w-0 pt-4">
+									<CardTitle className="line-clamp-2 text-base leading-snug sm:text-lg">
+										{product.name.toUpperCase()}
+									</CardTitle>
+									<p className="text-muted-foreground line-clamp-2 text-sm sm:text-base">
 										{product.description}
 									</p>
 								</CardContent>
-								<CardFooter className="flex justify-between">
-									<span className="font-bold">
+								<CardFooter className="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+									<span className="text-lg font-bold tabular-nums sm:text-base">
 										{product.price.toLocaleString('en-US', {
 											style: 'currency',
 											currency: 'GHS',
@@ -150,6 +154,7 @@ const FeaturedProducts = ({
 									<Button
 										variant="outline"
 										size="sm"
+										className="w-full shrink-0 sm:w-auto"
 										onClick={(e) => {
 											e.stopPropagation();
 											addToCart(product);

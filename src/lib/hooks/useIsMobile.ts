@@ -1,9 +1,13 @@
 import { useSyncExternalStore } from 'react';
 
-const getSnapshot = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
+/** Matches Tailwind `lg` (1024px): compact nav + sheet below this width. */
+const MOBILE_MQ = '(max-width: 1023px)';
+
+const getSnapshot = () =>
+	typeof window !== 'undefined' && window.matchMedia(MOBILE_MQ).matches;
 const getServerSnapshot = () => false;
 const subscribe = (callback: () => void) => {
-	const mql = window.matchMedia('(max-width: 767px)');
+	const mql = window.matchMedia(MOBILE_MQ);
 	mql.addEventListener('change', callback);
 	return () => mql.removeEventListener('change', callback);
 };

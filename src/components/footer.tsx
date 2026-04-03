@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
 	return (
-		<footer className="w-full py-6 bg-background">
-			<div className="container px-4 sm:px-6 max-w-6xl mx-auto">
+		<footer className="w-full bg-background px-4 py-6 sm:px-6">
+			<div className="mx-auto min-w-0 max-w-6xl">
 				<div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4">
 					<div className="space-y-2">
 						<h3 className="text-lg font-semibold">Shop</h3>

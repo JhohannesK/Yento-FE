@@ -61,12 +61,12 @@ export default function Home() {
 		});
 	};
 	return (
-		<main className="flex-1">
-			<section className="w-full py-8 sm:py-12 md:py-24 lg:py-32 xl:py-48 bg-muted">
-				<div className="container px-4 sm:px-6 min-w-6xl mx-auto">
-					<div className="flex flex-col items-center space-y-4 text-center">
-						<div className="space-y-2">
-							<h1 className="text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl/none">
+		<main className="flex min-h-0 min-w-0 flex-1 flex-col">
+			<section className="w-full py-8 sm:py-12 md:py-24 lg:py-32 xl:py-40 bg-muted">
+				<div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+					<div className="flex flex-col items-center gap-4 text-center sm:gap-6">
+						<div className="space-y-2 sm:space-y-3">
+							<h1 className="text-balance text-2xl font-bold tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl/none">
 								Welcome to Yeton
 								{authenticated &&
 								user &&
@@ -75,23 +75,33 @@ export default function Home() {
 									? `, ${(user as { userName: string }).userName}`
 									: ''}
 							</h1>
-							<p className="mx-auto max-w-[700px] text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl px-2">
+							<p className="mx-auto max-w-[42rem] text-pretty text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl">
 								Discover amazing products at unbeatable prices. Start shopping
 								now and enjoy free shipping on orders over $50!
 							</p>
 						</div>
-						<div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+						<div className="flex w-full max-w-md flex-col gap-2 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3">
 							{authenticated &&
 							user &&
 							user !== false &&
 							(user as { role?: string }).role === 'Admin' ? (
-								<Button onClick={() => navigate('/shop/admin/home')}>
+								<Button
+									className="w-full sm:w-auto"
+									onClick={() => navigate('/shop/admin/home')}
+								>
 									Add Item
 								</Button>
 							) : (
-								<Button onClick={() => navigate('#')}>Shop Now</Button>
+								<Button
+									className="w-full sm:w-auto"
+									onClick={() => navigate('/shop/search')}
+								>
+									Shop Now
+								</Button>
 							)}
-							<Button variant="outline">Learn More</Button>
+							<Button variant="outline" className="w-full sm:w-auto">
+								Learn More
+							</Button>
 						</div>
 					</div>
 				</div>
