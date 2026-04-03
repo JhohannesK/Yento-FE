@@ -1,4 +1,13 @@
-import { Heart, Package, Search, ShoppingCart, User, X } from 'lucide-react';
+import {
+	Apple,
+	Heart,
+	LogOut,
+	Package,
+	Search,
+	ShoppingCart,
+	User,
+	X,
+} from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { SheetClose } from '@/components/ui/sheet';
@@ -17,6 +26,8 @@ import {
 } from '@/components/ui/sidebar';
 import { useAppContext } from '@/lib/appContext';
 import { isAuthenticated } from '@/lib/auth';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { loadFromLocalStorage } from '@/lib/utils';
 
 const navLinks = [
 	{ to: '/shop/search', label: 'Search', icon: Search },
@@ -29,6 +40,12 @@ export function AppSidebar() {
 	const { cart } = useAppContext();
 	const authenticated = isAuthenticated();
 	const { setOpenMobile } = useSidebar();
+	const { signOut } = useAuth();
+	const user = loadFromLocalStorage({ key: 'user' });
+	const userObj =
+		user && user !== false && typeof user === 'object'
+			? (user as { role?: string })
+			: null;
 
 	const closeMobile = () => setOpenMobile(false);
 
@@ -97,14 +114,41 @@ export function AppSidebar() {
 			<SidebarFooter>
 				<SidebarMenu>
 					{authenticated ? (
-						<SidebarMenuItem>
-							<SidebarMenuButton asChild>
-								<Link to="/shop/order/history" onClick={closeMobile}>
-									<User className="size-4" />
-									Order History
-								</Link>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
+						[
+							<SidebarMenuItem key="orders">
+								<SidebarMenuButton asChild>
+									<Link to="/shop/order/history" onClick={closeMobile}>
+										<User className="size-4" />
+										Order History
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>,
+							userObj?.role === 'Admin' ? (
+								<SidebarMenuItem key="admin-products">
+									<SidebarMenuButton asChild>
+										<Link
+											to="/shop/admin/my-products"
+											onClick={closeMobile}
+										>
+											<Apple className="size-4" />
+											My Products
+										</Link>
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							) : null,
+							<SidebarMenuItem key="logout">
+								<SidebarMenuButton
+									className="text-destructive hover:text-destructive hover:bg-destructive/10"
+									onClick={() => {
+										closeMobile();
+										signOut.mutate();
+									}}
+								>
+									<LogOut className="size-4" />
+									Log out
+								</SidebarMenuButton>
+							</SidebarMenuItem>,
+						]
 					) : (
 						<SidebarMenuItem>
 							<Button

@@ -53,7 +53,7 @@ const Header = () => {
 						</Link>
 					))}
 					{authenticated ? (
-						<AccountMenu />
+						<AccountMenu align="end" />
 					) : (
 						<Button
 							size="sm"
@@ -64,8 +64,21 @@ const Header = () => {
 					)}
 				</nav>
 
-				{/* Compact widths: cart shortcut; full nav lives in sheet */}
-				<div className="flex items-center gap-2 ml-auto lg:hidden">
+				{/* Compact widths: account + cart; rest in sheet */}
+				<div className="flex items-center gap-1 ml-auto shrink-0 lg:hidden sm:gap-2">
+					{authenticated ? (
+						<AccountMenu compact align="end" />
+					) : (
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							className="px-2 text-muted-foreground"
+							onClick={() => navigate('/auth?auth=signin')}
+						>
+							Sign In
+						</Button>
+					)}
 					<Link
 						to="/shop/cart"
 						className="relative shrink-0 rounded-md p-2 text-muted-foreground transition-[color,transform] duration-150 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] hover:text-primary active:scale-[0.97] motion-reduce:active:scale-100"
