@@ -42,22 +42,25 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 	}
 
 	return (
-		<div className={cn('grid gap-6', className)} {...props}>
+		<div
+			className={cn('grid gap-6', className)}
+			{...props}
+		>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)}>
-					<div className='grid gap-2'>
-						<div className='grid gap-1'>
+					<div className="grid gap-2">
+						<div className="grid gap-1">
 							<FormField
 								control={form.control}
-								name='firstName'
+								name="firstName"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>FirstName</FormLabel>
 										<FormControl>
 											<Input
-												id='firstname'
-												type='text'
-												placeholder='first name'
+												id="firstname"
+												type="text"
+												placeholder="first name"
 												{...field}
 											/>
 										</FormControl>
@@ -68,15 +71,15 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 							/>
 							<FormField
 								control={form.control}
-								name='lastName'
+								name="lastName"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>LastName</FormLabel>
 										<FormControl>
 											<Input
-												id='lastname'
-												type='text'
-												placeholder='last name'
+												id="lastname"
+												type="text"
+												placeholder="last name"
 												{...field}
 											/>
 										</FormControl>
@@ -87,39 +90,16 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 							/>
 							<FormField
 								control={form.control}
-								name='username'
+								name="username"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Username</FormLabel>
 										<FormControl>
 											<Input
-												id='username'
-												type='text'
-												placeholder='username'
+												id="username"
+												type="text"
+												placeholder="username"
 												{...field}
-											/>
-										</FormControl>
-										{/* <FormDescription>Your firstname</FormDescription> */}
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={form.control}
-								name='email'
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Email</FormLabel>
-										<FormControl>
-											<Input
-												{...field}
-												id='email'
-												placeholder='name@example.com'
-												type='email'
-												autoCapitalize='none'
-												autoComplete='email'
-												autoCorrect='off'
-												disabled={signUp.isPending}
 											/>
 										</FormControl>
 										<FormDescription>
@@ -131,15 +111,37 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 							/>
 							<FormField
 								control={form.control}
-								name='password'
+								name="email"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Email</FormLabel>
+										<FormControl>
+											<Input
+												{...field}
+												id="email"
+												placeholder="name@example.com"
+												type="email"
+												autoCapitalize="none"
+												autoComplete="email"
+												autoCorrect="off"
+												disabled={signUp.isPending}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="password"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Password</FormLabel>
 										<FormControl>
 											<Input
-												id='password'
-												type='password'
-												placeholder='password'
+												id="password"
+												type="password"
+												placeholder="password"
 												{...field}
 											/>
 										</FormControl>
@@ -150,15 +152,15 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 							/>
 							<FormField
 								control={form.control}
-								name='confirmPassword'
+								name="confirmPassword"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Confirm Password</FormLabel>
 										<FormControl>
 											<Input
-												id='confirmPassword'
-												type='password'
-												placeholder='confirm password'
+												id="confirmPassword"
+												type="password"
+												placeholder="confirm password"
 												{...field}
 											/>
 										</FormControl>
@@ -173,7 +175,7 @@ export function UserAuthSignUpForm({ className, ...props }: UserAuthFormProps) {
 
 						<Button disabled={signUp.isPending}>
 							{signUp.isPending && (
-								<Icons.spinner className='w-4 h-4 mr-2 animate-spin' />
+								<Icons.spinner className="w-4 h-4 mr-2 animate-spin" />
 							)}
 							Sign Up with Email
 						</Button>
