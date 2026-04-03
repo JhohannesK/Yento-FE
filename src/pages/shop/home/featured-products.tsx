@@ -141,7 +141,12 @@ const FeaturedProducts = ({
 									</p>
 								</CardContent>
 								<CardFooter className="flex justify-between">
-									<span className="font-bold">${product.price}</span>
+									<span className="font-bold">
+										{product.price.toLocaleString('en-US', {
+											style: 'currency',
+											currency: 'GHS',
+										})}
+									</span>
 									<Button
 										variant="outline"
 										size="sm"
