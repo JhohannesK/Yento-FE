@@ -2,8 +2,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { SignInInputs, SignUpInputs } from "../types";
 import { axiosInstance } from "../api/axios";
+import { clearSession, getRefreshToken, setSessionTokens } from "../auth/session";
 import { toast } from "sonner";
 import { saveToLocalStorage, sanitizeInternalRedirect } from "../utils";
+
+type SignInPayload = {
+	user: unknown;
+	accessToken: string;
+	refreshToken: string;
+};
 
 export const useAuth = () => {
    const queryClient = useQueryClient();
@@ -20,9 +27,10 @@ export const useAuth = () => {
                err.response?.data?.message ?? "Something occurred",
             loading: "loading...",
          });
-         return (response.data as { data: { user: unknown } }).data;
+         return (response.data as { data: SignInPayload }).data;
       },
       onSuccess: (data) => {
+         setSessionTokens(data.accessToken, data.refreshToken);
          saveToLocalStorage({ key: "user", state: data.user });
          queryClient.setQueryData(["user"], data.user);
          const target = sanitizeInternalRedirect(searchParams.get("redirect"));
@@ -52,9 +60,11 @@ export const useAuth = () => {
 
    const signOut = useMutation({
       mutationFn: async () => {
-         await axiosInstance.post("/auth/signout");
+         const rt = getRefreshToken();
+         await axiosInstance.post("/auth/signout", rt ? { refreshToken: rt } : {});
       },
       onSettled: () => {
+         clearSession();
          localStorage.removeItem("user");
          queryClient.clear();
          navigate("/auth?auth=signin");
