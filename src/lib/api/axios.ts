@@ -20,6 +20,21 @@ export const axiosInstance = axios.create({
 	withCredentials: true,
 });
 
+/** One shared refresh: backend revokes the old refresh token on success, so parallel POST /auth/refresh races break prod (first wins, rest get 401). */
+let refreshInFlight: Promise<void> | null = null;
+
+function refreshSessionOnce(): Promise<void> {
+	if (!refreshInFlight) {
+		refreshInFlight = axiosInstance
+			.post('/auth/refresh')
+			.then(() => undefined)
+			.finally(() => {
+				refreshInFlight = null;
+			});
+	}
+	return refreshInFlight;
+}
+
 axiosInstance.interceptors.response.use(
 	(response) => response,
 	async (error) => {
@@ -33,7 +48,7 @@ axiosInstance.interceptors.response.use(
 		if (shouldTryRefresh) {
 			originalRequest._retry = true;
 			try {
-				await axiosInstance.post('/auth/refresh');
+				await refreshSessionOnce();
 				return axiosInstance(originalRequest);
 			} catch {
 				localStorage.removeItem('user');
