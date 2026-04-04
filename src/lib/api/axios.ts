@@ -1,21 +1,21 @@
-import axios from "axios";
+import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_DEV_URL || "http://localhost:3000/api";
+const baseURL = import.meta.env.VITE_DEV_URL || 'http://localhost:3000/api';
 
 /** Paths where 401 must not trigger refresh (avoids infinite loop on failed refresh; wrong credentials). */
 function isAuthPathThatSkipsRefresh(url: string | undefined): boolean {
 	if (!url) return false;
 	return (
-		url.includes("/auth/refresh") ||
-		url.includes("/auth/signin") ||
-		url.includes("/auth/signup")
+		url.includes('/auth/refresh') ||
+		url.includes('/auth/signin') ||
+		url.includes('/auth/signup')
 	);
 }
 
 export const axiosInstance = axios.create({
 	baseURL,
 	headers: {
-		"Content-Type": "application/json",
+		'Content-Type': 'application/json',
 	},
 	withCredentials: true,
 });
@@ -33,17 +33,17 @@ axiosInstance.interceptors.response.use(
 		if (shouldTryRefresh) {
 			originalRequest._retry = true;
 			try {
-				await axiosInstance.post("/auth/refresh");
+				await axiosInstance.post('/auth/refresh');
 				return axiosInstance(originalRequest);
 			} catch {
-				localStorage.removeItem("user");
-				const redirect = encodeURIComponent(
-					window.location.pathname + window.location.search
-				);
-				window.location.href = `/auth?auth=signin&redirect=${redirect}`;
-				return Promise.reject(error);
+				// localStorage.removeItem("user");
+				// const redirect = encodeURIComponent(
+				// 	window.location.pathname + window.location.search
+				// );
+				// window.location.href = `/auth?auth=signin&redirect=${redirect}`;
+				// return Promise.reject(error);
 			}
 		}
 		return Promise.reject(error);
-	}
+	},
 );
