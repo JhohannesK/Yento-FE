@@ -51,12 +51,12 @@ axiosInstance.interceptors.response.use(
 				await refreshSessionOnce();
 				return axiosInstance(originalRequest);
 			} catch {
-				localStorage.removeItem('user');
-				const redirect = encodeURIComponent(
-					window.location.pathname + window.location.search,
-				);
-				window.location.href = `/auth?auth=signin&redirect=${redirect}`;
-				return Promise.reject(error);
+				// localStorage.removeItem('user');
+				// const redirect = encodeURIComponent(
+				// 	window.location.pathname + window.location.search,
+				// );
+				// window.location.href = `/auth?auth=signin&redirect=${redirect}`;
+				// return Promise.reject(error);
 			}
 		}
 		return Promise.reject(error);
